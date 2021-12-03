@@ -20,8 +20,11 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
 !
 !---------------------------------------------------------------------------------
 !
+  use mpi
+  use esmf
+
   use time_manager_mod,   only: time_type, set_calendar_type, set_time,    &
-                                set_date, days_in_month, month_name,       &
+                                set_date, month_name,                      &
                                 operator(+), operator(-), operator (<),    &
                                 operator (>), operator (/=), operator (/), &
                                 operator (==), operator (*),               &
@@ -40,23 +43,20 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
                                 addLsmask2grid
 
   use constants_mod,      only: constants_init
-  use       fms_mod,      only: open_namelist_file, file_exist, check_nml_error, &
-                                error_mesg, fms_init, fms_end, close_file,       &
+  use fms_mod,            only: error_mesg, fms_init, fms_end,             &
                                 write_version_number, uppercase
 
-  use mpp_mod,            only: mpp_init, mpp_pe, mpp_root_pe, mpp_npes, mpp_get_current_pelist, &
-                                mpp_set_current_pelist, stdlog, mpp_error, NOTE, FATAL, WARNING
-  use mpp_mod,            only: mpp_clock_id, mpp_clock_begin, mpp_clock_end, mpp_sync
+  use mpp_mod,            only: mpp_init, mpp_pe, mpp_npes, mpp_root_pe,   &
+                                mpp_error, FATAL, WARNING, NOTE
+  use mpp_mod,            only: mpp_clock_id, mpp_clock_begin
 
-  use mpp_io_mod,         only: mpp_open, mpp_close, MPP_NATIVE, MPP_RDONLY, MPP_DELETE
+  use mpp_io_mod,         only: mpp_open, mpp_close, MPP_DELETE
 
-  use mpp_domains_mod,    only: mpp_get_global_domain, mpp_global_field, CORNER, domain2d
-  use mpp_domains_mod,    only: mpp_get_compute_domains
-  use memutils_mod,       only: print_memuse_stats
+  use mpp_domains_mod,    only: mpp_get_compute_domains, domain2D
   use sat_vapor_pres_mod, only: sat_vapor_pres_init
 
   use diag_manager_mod,   only: diag_manager_init, diag_manager_end, &
-                                get_base_date, diag_manager_set_time_end
+                                diag_manager_set_time_end
 
   use data_override_mod,  only: data_override_init
   use fv_nggps_diags_mod, only: fv_dyn_bundle_setup
@@ -65,21 +65,18 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
   use fms_io_mod,         only: field_exist, read_data
 
   use atmosphere_mod,     only: atmosphere_control_data
-  use esmf
 !
   use module_fv3_io_def, only:  num_pes_fcst, num_files, filename_base, nbdlphys, &
                                 iau_offset
-  use module_fv3_config, only:  dt_atmos, calendar, restart_interval,             &
+  use module_fv3_config, only:  dt_atmos, calendar, fcst_mpi_comm, fcst_ntasks,   &
                                 quilting, calendar_type,                          &
                                 cplprint_flag, force_date_from_configure,         &
-                                num_restart_interval, frestart, restart_endfcst
+                                restart_endfcst
   use get_stochy_pattern_mod, only: write_stoch_restart_atm
 !
 !-----------------------------------------------------------------------
 !
   implicit none
-!
-  include 'mpif.h'
 !
 !-----------------------------------------------------------------------
 !
@@ -111,18 +108,13 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
   integer :: numLevels     = 0
   integer :: numSoilLayers = 0
   integer :: numTracers    = 0
-  integer :: num_diag_sfc_emis_flux  = 0
-  integer :: num_diag_down_flux      = 0
-  integer :: num_diag_type_down_flux = 0
-  integer :: num_diag_burn_emis_flux = 0
-  integer :: num_diag_cmass          = 0
+
+  integer :: frestart(999)
 !
 !-----------------------------------------------------------------------
 !
   public SetServices, fcstGrid
-  public numLevels, numSoilLayers, numTracers,        &
-         num_diag_sfc_emis_flux, num_diag_down_flux,  &
-         num_diag_type_down_flux, num_diag_burn_emis_flux, num_diag_cmass
+  public numLevels, numSoilLayers, numTracers
 !
   contains
 !
@@ -183,68 +175,87 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
 
     integer                                :: Run_length
     integer,dimension(6)                   :: date, date_end
-    integer                                :: mpi_comm_comp
 !
-    logical,save                           :: first=.true.
     character(len=9) :: month
     integer :: initClock, unit, nfhour, total_inttime
-    integer :: mype, ntasks
+    integer :: mype
     character(3) cfhour
     character(4) dateSY
     character(2) dateSM,dateSD,dateSH,dateSN,dateSS
     character(len=esmf_maxstr) name_FB, name_FB1
     character(len=80) :: dateS
     real,    allocatable, dimension(:,:) :: glon_bnd, glat_bnd
-    
+
     character(256)                         :: gridfile
     type(ESMF_FieldBundle),dimension(:), allocatable  :: fieldbundlephys
 
-    real(8) mpi_wtime, timeis
+    real(8) :: mpi_wtime, timeis
 
     type(ESMF_DELayout) :: delayout
     type(ESMF_DistGrid) :: distgrid
     real(ESMF_KIND_R8),dimension(:,:), pointer :: glatPtr, glonPtr
     real(ESMF_KIND_R8),parameter :: dtor = 180.0_ESMF_KIND_R8 / 3.1415926535897931_ESMF_KIND_R8
     integer :: jsc, jec, isc, iec, nlev
-    type(domain2D) :: domain
+    type(domain2D)  :: domain
+    type(time_type) :: iautime
     integer :: n, fcstNpes, tmpvar
-    logical :: single_restart
+    logical :: freq_restart, fexist
     integer, allocatable, dimension(:) :: isl, iel, jsl, jel
     integer, allocatable, dimension(:,:,:) :: deBlockList
+    integer :: tlb(2), tub(2)
 
     type(ESMF_Decomp_Flag)  :: decompflagPTile(2,6)
 
-    integer               :: globalTileLayout(2)
-    integer               :: nestRootPet, peListSize(1)
+    integer               :: TileLayout(2)
+    integer               :: nestRootPet, npes(1), peListSize(1)
     integer, allocatable  :: petMap(:)
+
+    integer                       :: num_restart_interval, restart_starttime
+    real,dimension(:),allocatable :: restart_interval
 !
-!----------------------------------------------------------------------- 
-!*********************************************************************** 
-!----------------------------------------------------------------------- 
+!-----------------------------------------------------------------------
+!***********************************************************************
+!-----------------------------------------------------------------------
 !
     timeis = mpi_wtime()
     rc     = ESMF_SUCCESS
 !
-!----------------------------------------------------------------------- 
+!-----------------------------------------------------------------------
 !***  ALLOCATE THE WRITE COMPONENT'S INTERNAL STATE.
-!----------------------------------------------------------------------- 
+!-----------------------------------------------------------------------
 !
     allocate(atm_int_state,stat=rc)
 !
-!----------------------------------------------------------------------- 
+!-----------------------------------------------------------------------
 !***  ATTACH THE INTERNAL STATE TO THE WRITE COMPONENT.
-!----------------------------------------------------------------------- 
+!-----------------------------------------------------------------------
 !
     wrap%ptr => atm_int_state
     call ESMF_GridCompSetInternalState(fcst_comp, wrap, rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
 !
-    call ESMF_VMGetCurrent(vm=VM,rc=RC)        
-    call ESMF_VMGet(vm=VM, localPet=mype, mpiCommunicator=mpi_comm_comp, &
-                    petCount=ntasks, rc=rc)
-    if (mype == 0) write(0,*)'in fcst comp init, ntasks=',ntasks
+    call ESMF_VMGetCurrent(vm=VM,rc=RC)
+    call ESMF_VMGet(vm=VM, localPet=mype, mpiCommunicator=fcst_mpi_comm, &
+                    petCount=fcst_ntasks, rc=rc)
+    if (mype == 0) write(0,*)'in fcst comp init, fcst_ntasks=',fcst_ntasks
 !
-    call fms_init(mpi_comm_comp)
+    CF = ESMF_ConfigCreate(rc=rc)
+    call ESMF_ConfigLoadFile(config=CF ,filename='model_configure' ,rc=rc)
+    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
+!
+    num_restart_interval = ESMF_ConfigGetLen(config=CF, label ='restart_interval:',rc=rc)
+    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
+    if(mype == 0) print *,'af nems config,num_restart_interval=',num_restart_interval
+    if (num_restart_interval<=0) num_restart_interval = 1
+    allocate(restart_interval(num_restart_interval))
+    restart_interval = 0
+    call ESMF_ConfigGetAttribute(CF,valueList=restart_interval,label='restart_interval:', &
+      count=num_restart_interval, rc=rc)
+    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
+    if(mype == 0) print *,'af nems config,restart_interval=',restart_interval
+
+!
+    call fms_init(fcst_mpi_comm)
     call mpp_init()
     initClock = mpp_clock_id( 'Initialization' )
     call mpp_clock_begin (initClock) !nesting problem
@@ -275,9 +286,9 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
 !
     call set_calendar_type (calendar_type         )
 !
-!----------------------------------------------------------------------- 
+!-----------------------------------------------------------------------
 !***  set atmos time
-!----------------------------------------------------------------------- 
+!-----------------------------------------------------------------------
 !
     call ESMF_ClockGet(clock, CurrTime=CurrTime, StartTime=StartTime, &
                        StopTime=StopTime, rc=rc)
@@ -331,42 +342,63 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
     if (mype == 0) write(0,*)'num_atmos_calls=',atm_int_state%num_atmos_calls,'time_init=', &
                     date_init,'time_atmos=',date,'time_end=',date_end,'dt_atmos=',dt_atmos, &
                     'Run_length=',Run_length
+
+! set up forecast time array that controls when to write out restart files
     frestart = 0
-    single_restart = .false.
-    call get_time(atm_int_state%Time_end - atm_int_state%Time_atstart,total_inttime)
-    if(num_restart_interval == 2) then
-      if(restart_interval(2)== -1) single_restart = .true.
+    call get_time(atm_int_state%Time_end - atm_int_state%Time_init,total_inttime)
+! set iau offset time
+    atm_int_state%Atm%iau_offset    = iau_offset
+    if(iau_offset > 0 ) then
+      iautime =  set_time(iau_offset * 3600, 0)
     endif
-    if(single_restart) then
-      frestart(1) =  restart_interval(1) * 3600
-    elseif ( num_restart_interval == 1) then
-      if(restart_interval(1) == 0) then
-        frestart(1) = total_inttime
-      else if(restart_interval(1) > 0) then
+! if the second item is -1, the first number is frequency
+    freq_restart = .false.
+    if(num_restart_interval == 2) then
+      if(restart_interval(2)== -1) freq_restart = .true.
+    endif
+    if(freq_restart) then
+      if(restart_interval(1) >= 0) then
         tmpvar = restart_interval(1) * 3600
-        frestart(1) = tmpvar
         atm_int_state%Time_step_restart = set_time (tmpvar, 0)
-        atm_int_state%Time_restart      = atm_int_state%Time_atstart + atm_int_state%Time_step_restart
-        i = 2
-        do while ( atm_int_state%Time_restart < atm_int_state%Time_end ) 
-          frestart(i) = frestart(i-1) + tmpvar
-          atm_int_state%Time_restart = atm_int_state%Time_restart + atm_int_state%Time_step_restart
-           i = i + 1
+        if(iau_offset > 0 ) then
+          atm_int_state%Time_restart = atm_int_state%Time_init + iautime + atm_int_state%Time_step_restart
+          frestart(1) = tmpvar + iau_offset *3600
+        else
+          atm_int_state%Time_restart = atm_int_state%Time_init + atm_int_state%Time_step_restart
+          frestart(1) = tmpvar
+        endif
+        if(restart_interval(1) > 0) then
+          i = 2
+          do while ( atm_int_state%Time_restart < atm_int_state%Time_end )
+            frestart(i) = frestart(i-1) + tmpvar
+            atm_int_state%Time_restart = atm_int_state%Time_restart + atm_int_state%Time_step_restart
+             i = i + 1
+          enddo
+        endif
+      endif
+! otherwise it is an array with forecast time at which the restart files will be written out
+    else if(num_restart_interval >= 1) then
+      if(num_restart_interval == 1 .and. restart_interval(1) == 0 ) then
+        frestart(1) = total_inttime
+      else
+        if(iau_offset > 0 ) then
+          restart_starttime = iau_offset *3600
+        else
+          restart_starttime = 0
+        endif
+        do i=1,num_restart_interval
+          frestart(i) = restart_interval(i) * 3600. + restart_starttime
         enddo
       endif
-    else if(num_restart_interval > 1) then
-      do i=1,num_restart_interval
-        frestart(i) = restart_interval(i) * 3600
-      enddo
     endif
+! if to write out restart at the end of forecast
     restart_endfcst = .false.
-    if ( ANY(frestart(:) == total_inttime) ) restart_endfcst = .true. 
+    if ( ANY(frestart(:) == total_inttime) ) restart_endfcst = .true.
     if (mype == 0) print *,'frestart=',frestart(1:10)/3600, 'restart_endfcst=',restart_endfcst, &
       'total_inttime=',total_inttime
-       
+! if there is restart writing during integration 
     atm_int_state%intrm_rst         = 0
     if (frestart(1)>0) atm_int_state%intrm_rst = 1
-    atm_int_state%Atm%iau_offset    = iau_offset
 !
 !----- write time stamps (for start time and end time) ------
 
@@ -383,10 +415,12 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
      call  atmos_model_init (atm_int_state%Atm,  atm_int_state%Time_init, &
                              atm_int_state%Time_atmos, atm_int_state%Time_step_atmos)
 !
-     call data_override_init ( ) ! Atm_domain_in  = Atm%domain, &
-                                 ! Ice_domain_in  = Ice%domain, &
-                                 ! Land_domain_in = Land%domain )
-
+     inquire(FILE='data_table', EXIST=fexist)
+     if (fexist) then
+       call data_override_init ( ) ! Atm_domain_in  = Atm%domain, &
+                                   ! Ice_domain_in  = Ice%domain, &
+                                   ! Land_domain_in = Land%domain )
+     endif
 !-----------------------------------------------------------------------
 !---- open and close dummy file in restart dir to check if dir exists --
 
@@ -401,7 +435,7 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
 !*** first try: Create cubed sphere grid from file
 !-----------------------------------------------------------------------
 !
-      if (mype == 0) write(0,*)'be create fcst grid'
+      call mpp_error(NOTE, 'before create fcst grid')
 
       gridfile = "grid_spec.nc" ! default
 
@@ -409,7 +443,11 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
         call read_data("INPUT/grid_spec.nc", "atm_mosaic_file", gridfile)
       endif
 
-      if( atm_int_state%Atm%regional ) then
+      if (mpp_pe() == mpp_root_pe()) &
+      write(*, *) 'create fcst grid: mype,regional,nested=',mype,atm_int_state%Atm%regional,atm_int_state%Atm%nested
+
+      ! regional-only without nests
+      if( atm_int_state%Atm%regional .and. .not. atm_int_state%Atm%nested ) then
 
         call atmosphere_control_data (isc, iec, jsc, jec, nlev)
 
@@ -431,8 +469,7 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
         fcstGrid = ESMF_GridCreateNoPeriDim(regDecomp=(/atm_int_state%Atm%layout(1),atm_int_state%Atm%layout(2)/), &
                                               minIndex=(/1,1/), &
                                               maxIndex=(/atm_int_state%Atm%mlon,atm_int_state%Atm%mlat/), &
-                                              gridEdgeLWidth=(/0,0/), &
-                                              gridEdgeUWidth=(/0,0/), &
+                                              gridAlign=(/-1,-1/), &
                                               decompflag=(/ESMF_DECOMP_SYMMEDGEMAX,ESMF_DECOMP_SYMMEDGEMAX/), &
                                               name="fcst_grid", &
                                               indexflag=ESMF_INDEX_DELOCAL, &
@@ -452,43 +489,63 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
           enddo
         enddo
 
-          ! add and define "corner" coordinate values
-          !call ESMF_GridAddCoord(fcstGrid, staggerLoc=ESMF_STAGGERLOC_CORNER, staggerAlign=(/1,1/), rc=rc); ESMF_ERR_ABORT(rc)
-          !call ESMF_GridGetCoord(fcstGrid, coordDim=1, staggerLoc=ESMF_STAGGERLOC_CORNER,           farrayPtr=glonPtr, rc=rc); ESMF_ERR_ABORT(rc)
-          !call ESMF_GridGetCoord(fcstGrid, coordDim=2, staggerLoc=ESMF_STAGGERLOC_CORNER,           farrayPtr=glatPtr, rc=rc); ESMF_ERR_ABORT(rc)
+        ! add and define "corner" coordinate values
+        call ESMF_GridAddCoord(fcstGrid, staggerLoc=ESMF_STAGGERLOC_CORNER, &
+                               rc=rc); ESMF_ERR_ABORT(rc)
+        call ESMF_GridGetCoord(fcstGrid, coordDim=1, staggerLoc=ESMF_STAGGERLOC_CORNER, &
+                               totalLBound=tlb, totalUBound=tub, &
+                               farrayPtr=glonPtr, rc=rc); ESMF_ERR_ABORT(rc)
+        glonPtr(tlb(1):tub(1),tlb(2):tub(2)) = &
+           atm_int_state%Atm%lon_bnd(tlb(1):tub(1),tlb(2):tub(2)) * dtor
+        call ESMF_GridGetCoord(fcstGrid, coordDim=2, staggerLoc=ESMF_STAGGERLOC_CORNER, &
+                               totalLBound=tlb, totalUBound=tub, &
+                               farrayPtr=glatPtr, rc=rc); ESMF_ERR_ABORT(rc)
+        glatPtr(tlb(1):tub(1),tlb(2):tub(2)) = &
+          atm_int_state%Atm%lat_bnd(tlb(1):tub(1),tlb(2):tub(2)) * dtor
 
-          !do j = jsc, jec
-          !do i = isc, iec
-          !  glonPtr(i,j) = atm_int_state%Atm%gridstruct%agrid_64(i,j,1)
-          !  glatPtr(i,j) = atm_int_state%Atm%gridstruct%agrid_64(i,j,2)
-          !enddo
-          !enddo
+        call mpp_error(NOTE, 'after create fcst grid for regional-only')
 
-      else ! not regional
+      else ! not regional only
 
-        if ( .not. atm_int_state%Atm%nested ) then  !! global only
+        if (.not. atm_int_state%Atm%regional .and. .not. atm_int_state%Atm%nested ) then  !! global only
 
           do tl=1,6
               decomptile(1,tl) = atm_int_state%Atm%layout(1)
               decomptile(2,tl) = atm_int_state%Atm%layout(2)
               decompflagPTile(:,tl) = (/ESMF_DECOMP_SYMMEDGEMAX,ESMF_DECOMP_SYMMEDGEMAX/)
           enddo
-          fcstGrid = ESMF_GridCreateMosaic(filename="INPUT/"//trim(gridfile),                                 &
+          fcstGrid = ESMF_GridCreateMosaic(filename="INPUT/"//trim(gridfile),                                   &
                                              regDecompPTile=decomptile,tileFilePath="INPUT/",                   &
                                              decompflagPTile=decompflagPTile,                                   &
                                              staggerlocList=(/ESMF_STAGGERLOC_CENTER, ESMF_STAGGERLOC_CORNER/), &
                                              name='fcst_grid', rc=rc)
           if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
 
-        else !! nesting
+          call mpp_error(NOTE, 'after create fcst grid for global-only with INPUT/'//trim(gridfile))
 
-#if ESMF_VERSION_MAJOR >= 8
-          if (mype==0) globalTileLayout = atm_int_state%Atm%layout
-          call ESMF_VMBroadcast(vm, bcstData=globalTileLayout, count=2, &
+        else !! global-nesting or regional-nesting
+
+          if (mype==0) TileLayout = atm_int_state%Atm%layout
+          call ESMF_VMBroadcast(vm, bcstData=TileLayout, count=2, &
                                   rootPet=0, rc=rc)
           if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
 
-          nestRootPet = globalTileLayout(1) * globalTileLayout(2) * 6
+          if (mype==0) npes(1) = mpp_npes()
+          call ESMF_VMBroadcast(vm, bcstData=npes, count=1, &
+                                  rootPet=0, rc=rc)
+          if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
+
+          if ( npes(1) == TileLayout(1) * TileLayout(2) * 6 ) then
+            ! global-nesting
+            nestRootPet = npes(1)
+            gridfile="grid.nest02.tile7.nc"
+          else if ( npes(1) == TileLayout(1) * TileLayout(2) ) then
+            ! regional-nesting
+            nestRootPet = npes(1)
+            gridfile="grid.nest02.tile2.nc"
+          else
+            call mpp_error(FATAL, 'Inconsistent nestRootPet and Atm%layout')
+          endif
 
           if (mype == nestRootPet) then
             if (nestRootPet /= atm_int_state%Atm%pelist(1)) then
@@ -521,16 +578,15 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
           if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
 
           ! create the nest Grid by reading it from file but use DELayout
-          fcstGrid = ESMF_GridCreate(filename='INPUT/grid.nest02.tile7.nc',                             &
+          fcstGrid = ESMF_GridCreate(filename="INPUT/"//trim(gridfile),                                   &
                                        fileformat=ESMF_FILEFORMAT_GRIDSPEC, regDecomp=regDecomp,          &
                                        decompflag=(/ESMF_DECOMP_SYMMEDGEMAX,ESMF_DECOMP_SYMMEDGEMAX/),    &
                                        delayout=delayout, isSphere=.false., indexflag=ESMF_INDEX_DELOCAL, &
-              rc=rc)
+                                       rc=rc)
           if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
-#else
-          write(0,*)'nest quilting is supported only with ESMF 8'
-          call ESMF_Finalize(endflag=ESMF_END_ABORT)
-#endif
+
+          call mpp_error(NOTE, 'after create fcst grid with INPUT/'//trim(gridfile))
+
         endif
 
       endif
@@ -549,6 +605,13 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
 !       if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
 !     endif
 !
+! Write grid to netcdf file
+      if( cplprint_flag ) then
+        call wrt_fcst_grid(fcstGrid, "diagnostic_FV3_fcstGrid.nc", &
+                                 regridArea=.TRUE., rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
+      endif
+
 ! Add gridfile Attribute to the exportState
       call ESMF_AttributeAdd(exportState, convention="NetCDF", purpose="FV3", &
                                attrList=(/"gridfile"/), rc=rc)
@@ -671,13 +734,9 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
 !end qulting
       endif
 
-      call get_atmos_model_ungridded_dim(nlev=numLevels, nsoillev=numSoilLayers,             &
-                                         ntracers=numTracers,                                &
-                                         num_diag_burn_emis_flux=num_diag_burn_emis_flux,    &
-                                         num_diag_sfc_emis_flux=num_diag_sfc_emis_flux,      &
-                                         num_diag_down_flux=num_diag_down_flux,              &
-                                         num_diag_type_down_flux=num_diag_type_down_flux,    &
-                                         num_diag_cmass=num_diag_cmass)
+      call get_atmos_model_ungridded_dim(nlev=numLevels,         &
+                                         nsoillev=numSoilLayers, &
+                                         ntracers=numTracers)
 !
 !-----------------------------------------------------------------------
 !
@@ -785,7 +844,7 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
 !
       integer                    :: i,j, mype, na, date(6), seconds
       character(20)              :: compname
- 
+
       type(time_type)            :: restart_inctime
       type(ESMF_Time)            :: currtime
       integer(kind=ESMF_KIND_I8) :: ntimestep_esmf
@@ -819,16 +878,17 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
       call atmos_model_exchange_phase_2 (atm_int_state%Atm, rc=rc)
       if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
 
-      call update_atmos_model_state (atm_int_state%Atm)
+      call update_atmos_model_state (atm_int_state%Atm, rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=__FILE__)) return
 
 !--- intermediate restart
       if (atm_int_state%intrm_rst>0) then
-        if (na /= atm_int_state%num_atmos_calls-1) then 
-          call get_time(atm_int_state%Time_atmos - atm_int_state%Time_atstart, seconds)
+        if (na /= atm_int_state%num_atmos_calls-1) then
+          call get_time(atm_int_state%Time_atmos - atm_int_state%Time_init, seconds)
           if (ANY(frestart(:) == seconds)) then
-            restart_inctime = set_time(seconds, 0)
-            atm_int_state%Time_restart = atm_int_state%Time_atstart + restart_inctime
-            timestamp = date_to_string (atm_int_state%Time_restart)
+            if (mype == 0) write(0,*)'write out restart at na=',na,' seconds=',seconds,  &
+               'integration lenght=',na*dt_atmos/3600.
+            timestamp = date_to_string (atm_int_state%Time_atmos)
             call atmos_model_restart(atm_int_state%Atm, timestamp)
             call write_stoch_restart_atm('RESTART/'//trim(timestamp)//'.atm_stoch.res.nc')
 
@@ -836,8 +896,6 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
           endif
         endif
       endif
-!
-      call print_memuse_stats('after full step')
 !
 !-----------------------------------------------------------------------
 !
@@ -884,8 +942,8 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
 !***  retrieve the fcst component's esmf internal state
 !-----------------------------------------------------------------------
 !
-      call ESMF_GridCompGetInternalState(fcst_comp, wrap, rc)  
-      atm_int_state => wrap%ptr   
+      call ESMF_GridCompGetInternalState(fcst_comp, wrap, rc)
+      atm_int_state => wrap%ptr
 !
 !-----------------------------------------------------------------------
 !
@@ -961,6 +1019,192 @@ if (rc /= ESMF_SUCCESS) write(0,*) 'rc=',rc,__FILE__,__LINE__; if(ESMF_LogFoundE
         call mpp_close(unit)
     endif
   end subroutine wrt_atmres_timestamp
+!
+!#######################################################################
+!-- write forecast grid to NetCDF file for diagnostics
+!
+  subroutine wrt_fcst_grid(grid, fileName, relaxedflag, regridArea, rc)
+    type(ESMF_Grid), intent(in)                      :: grid
+    character(len=*), intent(in), optional           :: fileName
+    logical, intent(in), optional                    :: relaxedflag
+    logical, intent(in), optional                    :: regridArea
+    integer, intent(out)                             :: rc
+!
+!-----------------------------------------------------------------------
+!***  local variables
+!
+    logical                     :: ioCapable
+    logical                     :: doItFlag
+    character(len=64)           :: lfileName
+    character(len=64)           :: gridName
+    type(ESMF_Array)            :: array
+    type(ESMF_ArrayBundle)      :: arraybundle
+    logical                     :: isPresent
+    integer                     :: stat
+    logical                     :: hasCorners
+    logical                     :: lRegridArea
+    type(ESMF_Field)            :: areaField
+    type(ESMF_FieldStatus_Flag) :: areaFieldStatus
+
+    ioCapable = (ESMF_IO_PIO_PRESENT .and. &
+      (ESMF_IO_NETCDF_PRESENT .or. ESMF_IO_PNETCDF_PRESENT))
+    doItFlag = .true.
+    if (present(relaxedFlag)) then
+      doItFlag = .not.relaxedflag .or. (relaxedflag.and.ioCapable)
+    endif
+
+    if (doItFlag) then
+      ! Process optional arguments
+      if (present(fileName)) then
+        lfileName = trim(fileName)
+      else
+        call ESMF_GridGet(grid, name=gridName, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        lfileName = trim(gridName)//".nc"
+      endif
+      if (present(regridArea)) then
+        lRegridArea = regridArea
+      else
+        lRegridArea = .FALSE.
+      endif
+
+      ! Create bundle for storing output
+      arraybundle = ESMF_ArrayBundleCreate(rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        line=__LINE__, file=__FILE__)) return
+
+      ! -- Centers --
+      call ESMF_GridGetCoord(grid, staggerLoc=ESMF_STAGGERLOC_CENTER, &
+        isPresent=isPresent, rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        line=__LINE__, file=__FILE__)) return
+      if (isPresent) then
+        call ESMF_GridGetCoord(grid, coordDim=1, &
+          staggerLoc=ESMF_STAGGERLOC_CENTER, array=array, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        call ESMF_ArraySet(array, name="lon_center", rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        call ESMF_ArrayBundleAdd(arraybundle,(/array/), rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        call ESMF_GridGetCoord(grid, coordDim=2, &
+          staggerLoc=ESMF_STAGGERLOC_CENTER, array=array, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        call ESMF_ArraySet(array, name="lat_center", rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        call ESMF_ArrayBundleAdd(arraybundle,(/array/), rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+      endif
+
+      ! -- Corners --
+      call ESMF_GridGetCoord(grid, staggerLoc=ESMF_STAGGERLOC_CORNER, &
+        isPresent=hasCorners, rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        line=__LINE__, file=__FILE__)) return
+      if (hasCorners) then
+        call ESMF_GridGetCoord(grid, coordDim=1, &
+          staggerLoc=ESMF_STAGGERLOC_CORNER, array=array, rc=rc)
+        if (.not. ESMF_LogFoundError(rc, line=__LINE__, file=__FILE__)) then
+          call ESMF_ArraySet(array, name="lon_corner", rc=rc)
+          if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+            line=__LINE__, file=__FILE__)) return
+          call ESMF_ArrayBundleAdd(arraybundle,(/array/), rc=rc)
+          if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+            line=__LINE__, file=__FILE__)) return
+        endif
+        call ESMF_GridGetCoord(grid, coordDim=2, &
+          staggerLoc=ESMF_STAGGERLOC_CORNER, array=array, rc=rc)
+        if (.not. ESMF_LogFoundError(rc, line=__LINE__, file=__FILE__)) then
+          call ESMF_ArraySet(array, name="lat_corner", rc=rc)
+          if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+            line=__LINE__, file=__FILE__)) return
+          call ESMF_ArrayBundleAdd(arraybundle,(/array/), rc=rc)
+          if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+            line=__LINE__, file=__FILE__)) return
+        endif
+        if (lRegridArea) then
+          areaField = ESMF_FieldCreate(grid=grid, &
+            typekind=ESMF_TYPEKIND_R8, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+          call ESMF_FieldRegridGetArea(areaField, rc=rc)
+          if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+            line=__LINE__, file=__FILE__)) return
+          call ESMF_FieldGet(areaField, array=array, rc=rc)
+          if (.not. ESMF_LogFoundError(rc, line=__LINE__, file=__FILE__)) then
+            call ESMF_ArraySet(array, name="regrid_area", rc=rc)
+            if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+              line=__LINE__, file=__FILE__)) return
+            call ESMF_ArrayBundleAdd(arraybundle,(/array/), rc=rc)
+            if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+              line=__LINE__, file=__FILE__)) return
+          endif
+        endif
+      endif
+
+      ! -- Mask --
+      call ESMF_GridGetItem(grid, itemflag=ESMF_GRIDITEM_MASK, &
+        staggerLoc=ESMF_STAGGERLOC_CENTER, isPresent=isPresent, rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        line=__LINE__, file=__FILE__)) return
+      if (isPresent) then
+        call ESMF_GridGetItem(grid, staggerLoc=ESMF_STAGGERLOC_CENTER, &
+          itemflag=ESMF_GRIDITEM_MASK, array=array, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        call ESMF_ArraySet(array, name="mask", rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        call ESMF_ArrayBundleAdd(arraybundle,(/array/), rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+      endif
+
+      ! -- Area --
+      call ESMF_GridGetItem(grid, itemflag=ESMF_GRIDITEM_AREA, &
+        staggerLoc=ESMF_STAGGERLOC_CENTER, isPresent=isPresent, rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        line=__LINE__, file=__FILE__)) return
+      if (isPresent) then
+        call ESMF_GridGetItem(grid, staggerLoc=ESMF_STAGGERLOC_CENTER, &
+          itemflag=ESMF_GRIDITEM_AREA, array=array, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        call ESMF_ArraySet(array, name="area", rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        call ESMF_ArrayBundleAdd(arraybundle,(/array/), rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+      endif
+
+      ! Write array bundle to grid file
+      call ESMF_ArrayBundleWrite(arraybundle, fileName=trim(lfileName), rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        line=__LINE__, file=__FILE__)) return
+
+      ! Clean-up
+      if (lRegridArea) then
+        call ESMF_FieldGet(areaField, status=areaFieldStatus, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        if (areaFieldStatus.eq.ESMF_FIELDSTATUS_COMPLETE) then
+          call ESMF_FieldDestroy(areaField, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) return
+        endif
+      endif
+      call ESMF_ArrayBundleDestroy(arraybundle,rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        line=__LINE__, file=__FILE__)) return
+    endif
+  end subroutine wrt_fcst_grid
 !
 !----------------------------------------------------------------------------
 !----------------------------------------------------------------------------

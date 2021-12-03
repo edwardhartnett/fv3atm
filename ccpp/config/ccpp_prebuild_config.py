@@ -15,25 +15,27 @@ HOST_MODEL_IDENTIFIER = "FV3"
 # dependencies of these files to the list.
 VARIABLE_DEFINITION_FILES = [
     # actual variable definition files
+    'framework/src/ccpp_types.F90',
     'physics/physics/machine.F',
     'physics/physics/radsw_param.f',
+    'physics/physics/radlw_param.f',
     'physics/physics/h2o_def.f',
     'physics/physics/ozne_def.f',
-    'physics/physics/radlw_param.f',
-    'data/CCPP_typedefs.F90',
-    'data/GFS_typedefs.F90',
-    'data/CCPP_data.F90',
+    'physics/physics/radiation_surface.f',
     'physics/physics/rte-rrtmgp/rrtmgp/mo_gas_optics_rrtmgp.F90',
     'physics/physics/rte-rrtmgp/rrtmgp/mo_gas_concentrations.F90',
     'physics/physics/rte-rrtmgp/rte/mo_optical_props.F90',
     'physics/physics/rte-rrtmgp/extensions/cloud_optics/mo_cloud_optics.F90',
     'physics/physics/rte-rrtmgp/rte/mo_source_functions.F90',
+    'data/CCPP_typedefs.F90',
+    'data/GFS_typedefs.F90',
+    'data/CCPP_data.F90',
     ]
 
 TYPEDEFS_NEW_METADATA = {
     'ccpp_types' : {
-        'ccpp_types' : '',
         'ccpp_t' : 'cdata',
+        'ccpp_types' : '',
         },
     'machine' : {
         'machine' : '',
@@ -102,6 +104,7 @@ SCHEME_FILES = [
     'physics/physics/GFS_debug.F90',
     'physics/physics/GFS_phys_time_vary.fv3.F90',
     'physics/physics/GFS_rad_time_vary.fv3.F90',
+    'physics/physics/GFS_radiation_surface.F90',
     'physics/physics/GFS_rrtmg_post.F90',
     'physics/physics/GFS_rrtmg_pre.F90',
     'physics/physics/GFS_rrtmg_setup.F90',
@@ -177,8 +180,6 @@ SCHEME_FILES = [
     'physics/physics/sfc_cice.f',
     'physics/physics/sfc_diff.f',
     'physics/physics/sfc_drv.f',
-    'physics/physics/sfc_noah_wrfv4_interstitial.F90',
-    'physics/physics/sfc_noah_wrfv4.F90',
     'physics/physics/sfc_noahmp_drv.F90',
     'physics/physics/flake_driver.F90',
     'physics/physics/sfc_nst.f',
@@ -234,86 +235,6 @@ CAPS_DIR = '{build_dir}/physics'
 
 # Directory where the suite definition files are stored
 SUITES_DIR = 'suites'
-
-# Optional arguments - only required for schemes that use
-# optional arguments. ccpp_prebuild.py will throw an exception
-# if it encounters a scheme subroutine with optional arguments
-# if no entry is made here. Possible values are: 'all', 'none',
-# or a list of standard_names: [ 'var1', 'var3' ].
-OPTIONAL_ARGUMENTS = {
-    'rrtmg_sw' : {
-        'rrtmg_sw_run' : [
-            'tendency_of_air_temperature_due_to_shortwave_heating_assuming_clear_sky_on_radiation_time_step_and_radiation_levels',
-            'components_of_surface_downward_shortwave_fluxes',
-            'cloud_liquid_water_path',
-            'mean_effective_radius_for_liquid_cloud',
-            'cloud_ice_water_path',
-            'mean_effective_radius_for_ice_cloud',
-            'cloud_rain_water_path',
-            'mean_effective_radius_for_rain_drop',
-            'cloud_snow_water_path',
-            'mean_effective_radius_for_snow_flake',
-            ],
-        },
-    'rrtmg_lw' : {
-        'rrtmg_lw_run' : [
-            'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step_and_radiation_levels',
-            'cloud_liquid_water_path',
-            'mean_effective_radius_for_liquid_cloud',
-            'cloud_ice_water_path',
-            'mean_effective_radius_for_ice_cloud',
-            'cloud_rain_water_path',
-            'mean_effective_radius_for_rain_drop',
-            'cloud_snow_water_path',
-            'mean_effective_radius_for_snow_flake',
-            ],
-        },
-    'mp_thompson' : {
-        'mp_thompson_init' : [
-            'cloud_droplet_number_concentration',
-            'water_friendly_aerosol_number_concentration',
-            'ice_friendly_aerosol_number_concentration',
-            'tendency_of_water_friendly_aerosols_at_surface',
-            'tendency_of_ice_friendly_aerosols_at_surface',
-            # DH* 2020-06-01: turn off calculation of effective radii, now done in GFS_rrtmg_pre
-            #'effective_radius_of_stratiform_cloud_liquid_water_particle_in_um',
-            #'effective_radius_of_stratiform_cloud_ice_particle_in_um',
-            #'effective_radius_of_stratiform_cloud_snow_particle_in_um',
-            # *DH 2020-06-01
-            ],
-        'mp_thompson_run' : [
-            'cloud_droplet_number_concentration_updated_by_physics',
-            'water_friendly_aerosol_number_concentration_updated_by_physics',
-            'ice_friendly_aerosol_number_concentration_updated_by_physics',
-            'tendency_of_water_friendly_aerosols_at_surface',
-            'tendency_of_ice_friendly_aerosols_at_surface',
-            # DH* 2020-06-01: turn off calculation of effective radii, now done in GFS_rrtmg_pre
-            #'effective_radius_of_stratiform_cloud_liquid_water_particle_in_um',
-            #'effective_radius_of_stratiform_cloud_ice_particle_in_um',
-            #'effective_radius_of_stratiform_cloud_snow_particle_in_um',
-            # *DH 2020-06-01
-            ],
-        },
-    'rrtmgp_sw_rte' : {
-         'rrtmgp_sw_rte_run' : [
-             'components_of_surface_downward_shortwave_fluxes',
-             ],
-         },
-    'GFS_rrtmgp_sw_post' : {
-         'GFS_rrtmgp_sw_post_run' : [
-             'tendency_of_air_temperature_due_to_shortwave_heating_assuming_clear_sky_on_radiation_time_step',
-             'components_of_surface_downward_shortwave_fluxes',
-             ],
-         },
-    'GFS_rrtmgp_lw_post' : {
-         'GFS_rrtmgp_lw_post_run' : [
-             'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
-             ],
-         },
-    #'subroutine_name_1' : 'all',
-    #'subroutine_name_2' : 'none',
-    #'subroutine_name_2' : [ 'var1', 'var3'],
-    }
 
 # Directory where to write static API to
 STATIC_API_DIR = '{build_dir}/physics'

@@ -22,6 +22,7 @@ module post_gfs
 !
 !  revision history:
 !     Jul 2019    J. Wang      create interface to run inline post for FV3
+!     Apr 2021    R. Sun       Added variables for Thomspon MP
 !
 !-----------------------------------------------------------------------
 !*** run post on write grid comp
@@ -156,15 +157,19 @@ module post_gfs
             if(mype==0) print *,'af read_xml at fh00,name=',trim(filenameflat)
           else if(ifhr > 0) then
             filenameflat = 'postxconfig-NT.txt'
-            if(size(paramset)>0) then
-              do i=1,size(paramset)
-                if (size(paramset(i)%param)>0) then
-                  deallocate(paramset(i)%param)
-                  nullify(paramset(i)%param)
-                endif
-              enddo
-              deallocate(paramset)
-              nullify(paramset)
+            if(associated(paramset)) then
+              if( size(paramset)>0) then
+                do i=1,size(paramset)
+                  if (associated(paramset(i)%param)) then
+                    if (size(paramset(i)%param)>0) then
+                      deallocate(paramset(i)%param)
+                      nullify(paramset(i)%param)
+                    endif
+                  endif
+                enddo
+                deallocate(paramset)
+                nullify(paramset)
+              endif
             endif
             num_pset = 0
             call read_xml()
@@ -338,12 +343,12 @@ module post_gfs
       use vrbls3d,     only: t, q, uh, vh, wh, alpint, dpres, zint, zmid, o3,  &
                              qqr, qqs, cwm, qqi, qqw, qqg, omga, cfr, pmid,    &
                              q2, rlwtt, rswtt, tcucn, tcucns, train, el_pbl,   &
-                             pint, exch_h, ref_10cm
+                             pint, exch_h, ref_10cm, qqni,qqnr,qqnwfa,qqnifa
       use vrbls2d,     only: f, pd, sigt4, fis, pblh, ustar, z0, ths, qs, twbs,&
                              qwbs, avgcprate, cprate, avgprec, prec, lspa, sno,&
                              cldefi, th10, q10, tshltr, pshltr, tshltr, albase,&
-                             avgalbedo, avgtcdc, czen, czmean, mxsnal, radot,  &
-                             cfrach, cfracl, cfracm, avgcfrach, qshltr,        &
+                             avgalbedo, avgtcdc, czen, czmean, mxsnal,landfrac,&
+                             radot, cfrach, cfracl, cfracm, avgcfrach, qshltr, &
                              avgcfracl, avgcfracm, cnvcfr, islope, cmc, grnflx,&
                              vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,   &
                              bgroff, rlwin,      &
@@ -355,10 +360,11 @@ module post_gfs
                              acsnow, acsnom, sst, thz0, qz0, uz0, vz0, ptop,   &
                              htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm,     &
                              pbotm, ttopm, ptoph, pboth, pblcfr, ttoph, runoff,&
+                             tecan, tetran, tedir, twa,                        &
                              maxtshltr, mintshltr, maxrhshltr, minrhshltr,     &
                              dzice, smcwlt, suntime, fieldcapa, htopd, hbotd,  &
                              htops, hbots, aswintoa, maxqshltr, minqshltr,     &
-                             acond, sr, u10h, v10h, avgedir, avgecan,          &
+                             acond, sr, u10h, v10h, avgedir, avgecan,paha,pahi,&
                              avgetrans, avgesnow, avgprec_cont, avgcprate_cont,&
                              avisbeamswin, avisdiffswin, airbeamswin, airdiffswin, &
                              alwoutc, alwtoac, aswoutc, aswtoac, alwinc, aswinc,& 
@@ -1076,6 +1082,18 @@ module post_gfs
               enddo
             endif
 
+            !  land fraction 
+            if(trim(fieldname)=='lfrac') then
+              !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,spval,landfrac,arrayr42d,sm)
+              do j=jsta,jend
+                do i=ista, iend
+                  landfrac(i,j) = arrayr42d(i,j)
+                  if (sm(i,j) /= 0.0) landfrac(i,j) = spval
+                enddo
+              enddo
+            endif
+ 
+
             ! ave high cloud fraction
             if(trim(fieldname)=='tcdc_avehcl') then
               !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,spval,avgcfrach,arrayr42d)
@@ -1792,6 +1810,50 @@ module post_gfs
               enddo
             endif
 
+            ! accumulated evaporation of intercepted water
+            if(trim(fieldname)=='ecan_acc') then
+              !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,spval,tecan,arrayr42d,sm)
+              do j=jsta,jend
+                do i=ista, iend
+                  tecan(i,j) = arrayr42d(i,j)
+                  if (sm(i,j) /= 0.0) tecan(i,j) = spval
+                enddo
+              enddo
+            endif
+
+            ! accumulated plant transpiration 
+            if(trim(fieldname)=='etran_acc') then
+              !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,spval,tetran,arrayr42d,sm)
+              do j=jsta,jend
+                do i=ista, iend
+                  tetran(i,j) = arrayr42d(i,j)
+                  if (sm(i,j) /= 0.0) tetran(i,j) = spval
+                enddo
+              enddo
+            endif
+
+            ! accumulated soil surface evaporation
+            if(trim(fieldname)=='edir_acc') then
+              !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,spval,tedir,arrayr42d,sm)
+              do j=jsta,jend
+                do i=ista, iend
+                  tedir(i,j) = arrayr42d(i,j)
+                  if (sm(i,j) /= 0.0) tedir(i,j) = spval
+                enddo
+              enddo
+            endif
+
+            ! total water storage in aquifer
+            if(trim(fieldname)=='wa_acc') then
+              !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,spval,twa,arrayr42d,sm)
+              do j=jsta,jend
+                do i=ista, iend
+                  twa(i,j) = arrayr42d(i,j)
+                  if (sm(i,j) /= 0.0) twa(i,j) = spval
+                enddo
+              enddo
+            endif
+
             ! shelter max temperature
             if(trim(fieldname)=='tmax_max2m') then
               !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,maxtshltr,arrayr42d)
@@ -2007,6 +2069,28 @@ module post_gfs
               enddo
             endif
 
+            ! AVERAGED PRECIP ADVECTED HEAT FLUX
+            if(trim(fieldname)=='pah_ave') then
+              !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,spval,paha,arrayr42d,sm)
+              do j=jsta,jend
+                do i=ista, iend
+                  paha(i,j) = arrayr42d(i,j)
+                  if (sm(i,j) /= 0.0) paha(i,j) = spval
+                enddo
+              enddo
+            endif
+
+            ! instantaneous PRECIP ADVECTED HEAT FLUX
+            if(trim(fieldname)=='pahi') then
+              !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,spval,pahi,arrayr42d,sm)
+              do j=jsta,jend
+                do i=ista, iend
+                  pahi(i,j) = arrayr42d(i,j)
+                  if (sm(i,j) /= 0.0) pahi(i,j) = spval
+                enddo
+              enddo
+            endif
+
             ! plant transpiration
             if(trim(fieldname)=='trans_ave') then
               !$omp parallel do default(none) private(i,j) shared(jsta,jend,ista,iend,spval,avgetrans,arrayr42d,sm)
@@ -2167,7 +2251,11 @@ module post_gfs
             endif
 
             ! model level ozone mixing ratio
+#ifdef MULTI_GASES
+            if(trim(fieldname)=='spo3') then
+#else
             if(trim(fieldname)=='o3mr') then
+#endif
               !$omp parallel do default(none) private(i,j,l) shared(lm,jsta,jend,ista,iend,o3,arrayr43d)
               do l=1,lm
                 do j=jsta,jend
@@ -2178,8 +2266,8 @@ module post_gfs
               enddo
             endif
 
-! for GFDL MP
-            if (imp_physics == 11) then
+! for GFDL MP or Thompson MP 
+            if (imp_physics == 11 .or. imp_physics == 8) then
               ! model level cloud water mixing ratio
               if(trim(fieldname)=='clwmr') then
                 !$omp parallel do default(none) private(i,j,l) shared(lm,jsta,jend,ista,iend,qqw,arrayr43d)
@@ -2239,6 +2327,56 @@ module post_gfs
                   enddo
                 enddo
               endif
+
+              if(imp_physics == 8) then
+              ! model level rain number
+              if(trim(fieldname)=='ncrain') then
+                !$omp parallel do default(none) private(i,j,l) shared(lm,jsta,jend,ista,iend,qqnr,arrayr43d)
+                do l=1,lm
+                  do j=jsta,jend
+                    do i=ista, iend
+                      qqnr(i,j,l)=arrayr43d(i,j,l)
+                    enddo
+                  enddo
+                enddo
+              endif
+
+              ! model level rain number
+              if(trim(fieldname)=='ncice') then
+                !$omp parallel do default(none) private(i,j,l) shared(lm,jsta,jend,ista,iend,qqni,arrayr43d)
+                do l=1,lm
+                  do j=jsta,jend
+                    do i=ista, iend
+                      qqni(i,j,l)=arrayr43d(i,j,l)
+                    enddo
+                  enddo
+                enddo
+              endif
+
+              ! model level rain number
+              if(trim(fieldname)=='nwfa') then
+                !$omp parallel do default(none) private(i,j,l) shared(lm,jsta,jend,ista,iend,qqnwfa,arrayr43d)
+                do l=1,lm
+                  do j=jsta,jend
+                    do i=ista, iend
+                      qqnwfa(i,j,l)=arrayr43d(i,j,l)
+                    enddo
+                  enddo
+                enddo
+              endif
+
+              ! model level rain number
+              if(trim(fieldname)=='nifa') then
+                !$omp parallel do default(none) private(i,j,l) shared(lm,jsta,jend,ista,iend,qqnifa,arrayr43d)
+                do l=1,lm
+                  do j=jsta,jend
+                    do i=ista, iend
+                      qqnifa(i,j,l)=arrayr43d(i,j,l)
+                    enddo
+                  enddo
+                enddo
+              endif
+              endif !if(imp_physics == 8) then
 !gfdlmp
             endif
 
@@ -2396,8 +2534,8 @@ module post_gfs
         enddo
       enddo
 
-! compute cwm for gfdlmp
-      if(  imp_physics == 11 ) then
+! compute cwm for gfdlmp or Thompson 
+      if(  imp_physics == 11 .or. imp_physics == 8) then
         do l=1,lm
 !$omp parallel do default(none) private(i,j) shared(l,jsta,jend,ista,iend,cwm,qqg,qqs,qqr,qqi,qqw)
           do j=jsta,jend
