@@ -1,6 +1,13 @@
+# This is the main CMake file for fv3atm.
+#
+# Mark Potts, Kyle Gerheiser, Alex Richert
+cmake_minimum_required(VERSION 3.19)
+
+# Handle user build options.
+option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
+
 # Enable CI build & unit testing:
 if(BUILD_TESTING)
-  cmake_minimum_required(VERSION 3.19)
   project(fv3atm VERSION 1.0 LANGUAGES C CXX Fortran)
   include(ci/CMakeLists.txt)
 endif()
@@ -140,6 +147,12 @@ endif()
 if(OPENMP)
   target_link_libraries(fv3atm PUBLIC OpenMP::OpenMP_Fortran)
 endif()
+
+# Determine whether or not to generate documentation.
+if(ENABLE_DOCS)
+  find_package(Doxygen REQUIRED)
+endif()
+add_subdirectory(docs)  
 
 ###############################################################################
 ### Install
