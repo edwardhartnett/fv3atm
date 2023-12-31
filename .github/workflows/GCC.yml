@@ -28,7 +28,7 @@ jobs:
 
     - name: install-mpi
       run: |
-        sudo apt-get install lib${{ matrix.mpi }}-dev
+        sudo apt-get install lib${{ matrix.mpi }}-dev doxygen
 
     - name: checkout-fv3atm
       uses: actions/checkout@v3
@@ -80,7 +80,7 @@ jobs:
         git clone --recurse-submodules https://github.com/NOAA-PSL/stochastic_physics
         mkdir ${GITHUB_WORKSPACE}/build
         cd ${GITHUB_WORKSPACE}/build
-        cmake ${GITHUB_WORKSPACE}/fv3atm -DBUILD_TESTING=ON ${{ matrix.cmake_opts }}
+        cmake ${GITHUB_WORKSPACE}/fv3atm -DBUILD_TESTING=ON -DENABLE_DOCS=ON ${{ matrix.cmake_opts }}
         make -j2
 
     - name: debug-artifacts

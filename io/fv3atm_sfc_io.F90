@@ -1,8 +1,16 @@
-!> \file fv3atm_sfc_io.F90
-!! This file contains a derived type and subroutines to read and write restart files for
-!! most FV3ATM surface fields. It works both for quilt (via ESMF) and non-quilt (via FMS)
-!! restarts. Certain fields are handled by other files: fv3atm_oro_io.F90, fv3atm_rrfs_sd_io.F90,
-!! and fv3atm_clm_lake_io.F90.
+!> @file
+!! @brief Derived type and subroutines to read and write restart files for
+!! most FV3ATM surface fields.
+!!
+!! @author Samuel Trahan
+
+!! Derived type and subroutines to read and write restart files for
+!! most FV3ATM surface fields. It works both for quilt (via ESMF) and
+!! non-quilt (via FMS) restarts. Certain fields are handled by other
+!! files: fv3atm_oro_io.F90, fv3atm_rrfs_sd_io.F90, and
+!! fv3atm_clm_lake_io.F90.
+!!
+!! @author Samuel Trahan
 module fv3atm_sfc_io
 
   use block_control_mod,  only: block_control_type
@@ -20,20 +28,30 @@ module fv3atm_sfc_io
   implicit none
   private
 
-  public :: Sfc_io_data_type
-  public :: Sfc_io_fill_2d_names, Sfc_io_fill_3d_names, Sfc_io_allocate_arrays, &
-       Sfc_io_register_axes, Sfc_io_write_axes, Sfc_io_register_2d_fields, &
-       Sfc_io_register_3d_fields, Sfc_io_copy_to_grid, Sfc_io_copy_from_grid, &
-       Sfc_io_apply_safeguards, Sfc_io_transfer, Sfc_io_final
+  public :: Sfc_io_data_type !< ???
+  public :: Sfc_io_fill_2d_names !< ???
+  public :: Sfc_io_fill_3d_names !< ???
+  public :: Sfc_io_allocate_arrays !< ???
+  public :: Sfc_io_register_axes !< ???
+  public :: Sfc_io_write_axes !< ???
+  public :: Sfc_io_register_2d_fields !< ???
+  public :: Sfc_io_register_3d_fields !< ???
+  public :: Sfc_io_copy_to_grid !< ???
+  public :: Sfc_io_copy_from_grid !< ???
+  public :: Sfc_io_apply_safeguards !< ???
+  public :: Sfc_io_transfer !< ???
+  public :: Sfc_io_final !< ???
 
-  !> \defgroup fv3atm_sfc_io module
+  !> @defgroup fv3atm_sfc_io module
   !> @{
 
   !>@ Minimum temperature allowed for snow/ice
   real(kind=kind_phys), parameter :: timin = 173.0_kind_phys
 
-  real(kind_phys), parameter:: min_lake_orog = 200.0_kind_phys
-  real(kind_phys), parameter:: zero = 0, one = 1
+  real(kind_phys), parameter:: min_lake_orog = 200.0_kind_phys !< ???
+  real(kind_phys), parameter:: zero = 0 !< ???
+  real(kind_phys), parameter:: one = 1 !< ???
+
 
   !> Internal data storage type for reading and writing surface restart files
   type Sfc_io_data_type
