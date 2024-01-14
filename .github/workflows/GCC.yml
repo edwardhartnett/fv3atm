@@ -83,7 +83,10 @@ jobs:
         cd ${GITHUB_WORKSPACE}/build
         cmake ${GITHUB_WORKSPACE}/fv3atm -DBUILD_TESTING=ON ${{ matrix.cmake_opts }}
         make -j2
+        pwd
+        ls -l
         cd docs
+        ls -l
         doxygen
 
     - name: debug-artifacts
