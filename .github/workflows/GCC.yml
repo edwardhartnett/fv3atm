@@ -90,3 +90,10 @@ jobs:
       with:
         name: ccpp_prebuild_logs
         path: ${{ github.workspace }}/build/ccpp/ccpp_prebuild.*
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: docs
+        path: |
+          fv3atm/build/docs/docs/html
+        
