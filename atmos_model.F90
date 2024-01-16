@@ -1,47 +1,28 @@
-!***********************************************************************
-!*                   GNU General Public License                        *
-!* This file is a part of fvGFS.                                       *
-!*                                                                     *
-!* fvGFS is free software; you can redistribute it and/or modify it    *
-!* and are expected to follow the terms of the GNU General Public      *
-!* License as published by the Free Software Foundation; either        *
-!* version 2 of the License, or (at your option) any later version.    *
-!*                                                                     *
-!* fvGFS is distributed in the hope that it will be useful, but        *
-!* WITHOUT ANY WARRANTY; without even the implied warranty of          *
-!* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU   *
-!* General Public License for more details.                            *
-!*                                                                     *
-!* For the full text of the GNU General Public License,                *
-!* write to: Free Software Foundation, Inc.,                           *
-!*           675 Mass Ave, Cambridge, MA 02139, USA.                   *
-!* or see:   http://www.gnu.org/licenses/gpl.html                      *
-!***********************************************************************
+!> @file
+!> @brief Driver for the atmospheric model, contains routines to
+!> advance the atmospheric model state by one time step.
+!> @author Jun Wang @date 01/2017
+
+!> @brief Driver for the atmospheric model, contains routines to
+!> advance the atmospheric model state by one time step.
+!>
+!> This version of atmos_model_mod has been designed around the implicit
+!> version diffusion scheme of the GCM. It requires two routines to advance
+!> the atmospheric model one time step into the future. These two routines
+!> correspond to the down and up sweeps of the standard tridiagonal solver.
+!> Most atmospheric processes (dynamics,radiation,etc.) are performed
+!> in the down routine. The up routine finishes the vertical diffusion
+!> and computes moisture related terms (convection,large-scale condensation,
+!> and precipitation).
+
+!> The boundary variables needed by other component models for coupling
+!> are contained in a derived data type. A variable of this derived type
+!> is returned when initializing the atmospheric model. It is used by other
+!> routines in this module and by coupling routines. The contents of
+!> this derived type should only be modified by the atmospheric model.
+!>
+!> @author Jun Wang @date 01/2017
 module atmos_model_mod
-!-----------------------------------------------------------------------
-!<OVERVIEW>
-!  Driver for the atmospheric model, contains routines to advance the
-!  atmospheric model state by one time step.
-!</OVERVIEW>
-
-!<DESCRIPTION>
-!     This version of atmos_model_mod has been designed around the implicit
-!     version diffusion scheme of the GCM. It requires two routines to advance
-!     the atmospheric model one time step into the future. These two routines
-!     correspond to the down and up sweeps of the standard tridiagonal solver.
-!     Most atmospheric processes (dynamics,radiation,etc.) are performed
-!     in the down routine. The up routine finishes the vertical diffusion
-!     and computes moisture related terms (convection,large-scale condensation,
-!     and precipitation).
-
-!     The boundary variables needed by other component models for coupling
-!     are contained in a derived data type. A variable of this derived type
-!     is returned when initializing the atmospheric model. It is used by other
-!     routines in this module and by coupling routines. The contents of
-!     this derived type should only be modified by the atmospheric model.
-
-!</DESCRIPTION>
-
 use mpp_mod,            only: mpp_pe, mpp_root_pe, mpp_clock_id, mpp_clock_begin
 use mpp_mod,            only: mpp_clock_end, CLOCK_COMPONENT, MPP_CLOCK_SYNC
 use mpp_mod,            only: FATAL, mpp_min, mpp_max, mpp_error, mpp_chksum
@@ -120,15 +101,43 @@ use fv_tracker_mod,           only: check_is_moving_nest, execute_tracker
 implicit none
 private
 
+!> ???
 public update_atmos_radiation_physics
+
+!> ???
 public update_atmos_model_state
+
+!> ???
 public update_atmos_model_dynamics
-public atmos_model_init, atmos_model_end, atmos_data_type
-public atmos_model_exchange_phase_1, atmos_model_exchange_phase_2
+
+!> ???
+public atmos_model_init
+
+!> ???
+public atmos_model_end
+
+!> ???
+public atmos_data_type
+
+!> ???
+public atmos_model_exchange_phase_1
+
+!> ???
+public atmos_model_exchange_phase_2
+
+!> ???
 public atmos_model_restart
+
+!> ???
 public get_atmos_model_ungridded_dim
+
+!> ???
 public atmos_model_get_nth_domain_info
+
+!> ???
 public addLsmask2grid
+
+!> ???
 public setup_exportdata
 !-----------------------------------------------------------------------
 
