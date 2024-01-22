@@ -2,6 +2,13 @@
 !> @brief Read and write restart files for the CLM Lake Model.
 !> @author Samuel Trahan @date Jun 20, 2023
 
+!> This #define reduces code length by a lot.
+#define IF_ASSOC_DEALLOC_NULL(var) \
+    if(associated(clm_lake%var)) then ; \
+      deallocate(clm_lake%var) ; \
+      nullify(clm_lake%var) ; \
+    endif
+
 !> @brief Read and write restart files for the CLM Lake Model.
 !>
 !> The source code of that model can be found in CCPP. Only the
@@ -533,13 +540,6 @@ CONTAINS
 
     ! Deallocate and nullify any associated pointers
 
-    !> This #define reduces code length by a lot.
-#define IF_ASSOC_DEALLOC_NULL(var) \
-    if(associated(clm_lake%var)) then ; \
-      deallocate(clm_lake%var) ; \
-      nullify(clm_lake%var) ; \
-    endif
-
     IF_ASSOC_DEALLOC_NULL(T_snow)
     IF_ASSOC_DEALLOC_NULL(T_ice)
     IF_ASSOC_DEALLOC_NULL(lake_snl2d)
@@ -561,8 +561,6 @@ CONTAINS
     IF_ASSOC_DEALLOC_NULL(lake_t_lake3d)
     IF_ASSOC_DEALLOC_NULL(lake_icefrac3d)
 
-#undef IF_ASSOC_DEALLOC_NULL
   end subroutine clm_lake_deallocate_data
 
 end module fv3atm_clm_lake_io
-!> @}
