@@ -533,7 +533,7 @@ CONTAINS
 
     ! Deallocate and nullify any associated pointers
 
-    ! This #define reduces code length by a lot
+    !> This #define reduces code length by a lot.
 #define IF_ASSOC_DEALLOC_NULL(var) \
     if(associated(clm_lake%var)) then ; \
       deallocate(clm_lake%var) ; \
