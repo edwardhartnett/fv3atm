@@ -3796,7 +3796,7 @@
 
     !> ???
     !>
-    !> @param[in] dimLablel ???
+    !> @param[in] dimLabel ???
     !> @param[out] rc Return code.
     !>
     !> @author J. Wang/G. Theurich @date Jul, 2017        
