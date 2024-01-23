@@ -1,15 +1,36 @@
-!-----------------------------------------------------------------------
-!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-!-----------------------------------------------------------------------
-!
+!> @file 
+!> @brief ???
+!> @author Jun Wang @date Oct 8, 2019 
+
+!> ??? 
+!>
+!> ## Subroutine History
+!>
+!> Date | Programmer | Modification
+!> -----|------------|-------------
+!> Jul 2019 | Jun Wang | allocate arrays for post processing
+!> Feb 2022 | J. Meng/B. Cui | create interface to run inline post with post_2d_decomp
+!>
+!> @param[in] imi ???
+!> @param[in] jmi ???
+!> @param[in] lmi ???
+!> @param[in] mype ???
+!> @param[in] nwtlpes ???
+!> @param[in] lead_write ???
+!> @param[in] mpicomp ???
+!> @param[in] jts ???
+!> @param[in] jte ???
+!> @param[in] jtsgrp ???
+!> @param[in] jtegrp ???
+!> @param[in] its ???
+!> @param[in] ite ???
+!> @param[in] itsgrp ???
+!> @param[in] itegrp
+!>
+!> @author Jun Wang @date Oct 8, 2019 
     subroutine post_alctvars(imi,jmi,lmi,mype,nwtlpes,lead_write, mpicomp,  &
                              jts,jte,jtsgrp,jtegrp,its,ite,itsgrp,itegrp)
-!
-!
-!   revision history:
-!    Jul 2019 Jun Wang: allocate arrays for post processing
-!    Feb 2022 J. Meng/B. Cui: create interface to run inline post with post_2d_decomp
-!
+
 !-----------------------------------------------------------------------
 !*** allocate post variables
 !-----------------------------------------------------------------------
@@ -215,11 +236,24 @@
        end do
       end do
     end subroutine post_alctvars
-!
-!---------------------------------------------------------------------
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-!---------------------------------------------------------------------
-!
+
+    !> ???
+    !>
+    !> ## Subroutine History
+    !>
+    !> Date | Programmer | Modification
+    !> -----|------------|-------------
+    !> Jul 2019 | Jun Wang | read post namelist
+    !>
+    !> @param[in] kpo ???
+    !> @param[in] kth ???
+    !> @param[in] kpv ???
+    !> @param[in] po ???
+    !> @param[in] th ???
+    !> @param[in] pv ???
+    !> @param[in] post_namelist ???
+    !>
+    !> @author Jun Wang @date Oct 8, 2019 
   subroutine read_postnmlt(kpo,kth,kpv,po,th,pv,post_namelist)
 !
       use ctlblk_mod, only : komax,fileNameD3D,lsm,lsmp1,spl,spldef,  &
@@ -230,7 +264,7 @@
       use upp_ifi_mod, only: write_ifi_debug_files
 !
 !    revision history:
-!    Jul 2019 Jun Wang: read post namelist
+
 !
       implicit none
 !---
@@ -335,16 +369,19 @@
 1000  continue
 
       end subroutine read_postnmlt
-!
-!---------------------------------------------------------------------
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-!---------------------------------------------------------------------
-!
+
+    !> Finalize post step.
+    !>
+    !> ## Subroutine History
+    !>
+    !> Date | Programmer | Modification
+    !> -----|------------|-------------
+    !> Jul 2019 | Jun Wang | finalize post step
+    !>
+    !> @param[in] post_gribversion ???
+    !>
+    !> @author Jun Wang @date Oct 8, 2019 
     subroutine post_finalize(post_gribversion)
-!
-!    revision history:
-!    Jul 2019 Jun Wang: finalize post step
-!
       use grib2_module, only : grib_info_finalize
 !
       character(*),intent(in) :: post_gribversion
