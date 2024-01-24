@@ -902,8 +902,19 @@ contains
 
   end subroutine mn_latlon_load_parent
 
-  !>@brief The subroutine 'mn_static_filename' generates the full pathname for a static file for each run
-  !>@details Constructs the full pathname for a variable and refinement level and tests whether it exists
+  !> The subroutine 'mn_static_filename' generates the full pathname
+  !> for a static file for each run.
+  !>
+  !> Constructs the full pathname for a variable and refinement level
+  !> and tests whether it exists
+  !>
+  !> @param[in] surface_dir Directory.
+  !> @param[in] tile_num Variable name.
+  !> @param[in] tag Tile number.
+  !> @param[in] refine Nest refinement.
+  !> @param[in] grid_filename Output pathname to netCDF file.
+  !>
+  !> @author W. Ramstrom, AOML/HRD  @date 01/15/2021
   subroutine mn_static_filename(surface_dir, tile_num, tag, refine, grid_filename)
     character(len=*), intent(in)       :: surface_dir     !< Directory
     character(len=*), intent(in)       :: tag             !< Variable name
@@ -938,7 +949,18 @@ contains
 
   end subroutine mn_static_filename
 
-  !>@brief The subroutine 'mn_latlon_read_hires_parent' reads in static data from a netCDF file
+  !> The subroutine 'mn_latlon_read_hires_parent' reads in static data
+  !> from a netCDF file.
+  !>
+  !> @param[in] npx Number of points in x.
+  !> @param[in] npy Number of points in y.
+  !> @param[in] refine  Number of points in refinement.
+  !> @param[in] pelist PE list for fms2_io.
+  !> @param[inout] fp_super_tile_geo Geometry of supergrid for parent tile at high resolution.
+  !> @param[in] surface_dir Surface directory to read netCDF file from.
+  !> @param[in] parent_tile Parent tile number.
+  !>
+  !> @author W. Ramstrom, AOML/HRD  @date 01/15/2021
   subroutine mn_latlon_read_hires_parent(npx, npy, refine, pelist, fp_super_tile_geo, surface_dir, parent_tile)
     integer, intent(in)                :: npx, npy, refine     !< Number of points in x,y, and refinement
     integer, allocatable, intent(in)   :: pelist(:)            !< PE list for fms2_io
@@ -958,8 +980,24 @@ contains
 
   end subroutine mn_latlon_read_hires_parent
 
-  !>@brief The subroutine 'mn_orog_read_hires_parent' loads parent orography data from netCDF
-  !>@details Gathers a number of terrain-related variables from the netCDF file
+  !> The subroutine 'mn_orog_read_hires_parent' loads parent orography
+  !> data from netCDF.
+  !>
+  !> Gathers a number of terrain-related variables from the netCDF file.
+  !>
+  !> @param[in] npx Number of points in x.
+  !> @param[in] npy Number of points in y.
+  !> @param[in] refine  Number of points in refinement.
+  !> @param[in] pelist PE list for fms2_io.
+  !> @param[in] surface_dir Surface directory to read netCDF file from.
+  !> @param[in] filtered_terrain Whether to use filtered terrain.
+  !> @param[in] orog_grid Output orography grid.
+  !> @param[in] orog_std_grid Output orography standard deviation grid.
+  !> @param[in] ls_mask_grid Output land sea mask grid.
+  !> @param[in] land_frac_grid Output land fraction grid.
+  !> @param[in] parent_tile Parent tile number.
+  !>
+  !> @author W. Ramstrom, AOML/HRD  @date 01/15/2021
   subroutine mn_orog_read_hires_parent(npx, npy, refine, pelist, surface_dir, filtered_terrain, orog_grid, orog_std_grid, ls_mask_grid, land_frac_grid, parent_tile)
     integer, intent(in)                :: npx, npy, refine   !< Number of points in x,y, and refinement
     integer, allocatable, intent(in)   :: pelist(:)          !< PE list for fms2_io
@@ -1010,8 +1048,23 @@ contains
 
   end subroutine mn_orog_read_hires_parent
 
-  !>@brief The subroutine 'mn_static_read_hires_r4' loads high resolution data from netCDF
-  !>@details Gathers a single variable from the netCDF file
+  !> The subroutine 'mn_static_read_hires_r4' loads high resolution
+  !> data from netCDF.
+  !>
+  !> Gathers a single variable from the netCDF file
+  !>
+  !> @param[in] npx Number of points in x.
+  !> @param[in] npy Number of points in y.
+  !> @param[in] refine  Number of points in refinement.
+  !> @param[in] pelist PE list for fms2_io.
+  !> @param[in] surface_dir Surface directory to read netCDF file from.
+  !> @param[in] file_prefix File tag.
+  !> @param[in] var_name Variable name in netCDF file.
+  !> @param[in] data_grid Output data grid.
+  !> @param[in] parent_tile Parent tile number.
+  !> @param[in] time Optional month number for time-varying parameters.
+  !>
+  !> @author W. Ramstrom, AOML/HRD  @date 01/15/2021
   subroutine mn_static_read_hires_r4(npx, npy, refine, pelist, surface_dir, file_prefix, var_name, data_grid, parent_tile, time)
     integer, intent(in)                :: npx, npy, refine           !< Number of x,y points and nest refinement
     integer, allocatable, intent(in)   :: pelist(:)                  !< PE list for fms2_io
@@ -1047,8 +1100,22 @@ contains
 
   end subroutine mn_static_read_hires_r4
 
-  !>@brief The subroutine 'mn_static_read_hires_r8' loads high resolution data from netCDF
-  !>@details Gathers a single variable from the netCDF file
+  !> The subroutine 'mn_static_read_hires_r8' loads high resolution
+  !> data from netCDF.
+  !>
+  !> Gathers a single variable from the netCDF file.
+  !>
+  !> @param[in] npx Number of points in x.
+  !> @param[in] npy Number of points in y.
+  !> @param[in] refine  Number of points in refinement.
+  !> @param[in] pelist PE list for fms2_io.
+  !> @param[in] surface_dir Surface directory to read netCDF file from.
+  !> @param[in] file_prefix File tag.
+  !> @param[in] var_name Variable name in netCDF file.
+  !> @param[in] data_grid Output data grid.
+  !> @param[in] parent_tile Parent tile number.
+  !>
+  !> @author W. Ramstrom, AOML/HRD  @date 01/15/2021
   subroutine mn_static_read_hires_r8(npx, npy, refine, pelist, surface_dir, file_prefix, var_name, data_grid, parent_tile)
     integer, intent(in)                :: npx, npy, refine           !< Number of x,y points and nest refinement
     integer, allocatable, intent(in)   :: pelist(:)                  !< PE list for fms2_io
@@ -1087,7 +1154,26 @@ contains
   !! Step 5.2 -- Recalculate nest halo weights
   !!============================================================================
 
-  !>@brief The subroutine 'mn_meta_recalc' recalculates nest halo weights
+  !> The subroutine 'mn_meta_recalc' recalculates nest halo weights.
+  !>
+  !> @param[in] delta_i_c Nest motion in delta i
+  !> @param[in] delta_j_c Nest motion in delta j
+  !> @param[in] x_refine Nest refinement
+  !> @param[in] y_refine Nest refinement
+  !> @param[in] tile_geo tile geometries
+  !> @param[in] parent_geo  tile geometries
+  !> @param[in] fp_super_tile_geo  tile geometries
+  !> @param[in] is_fine_pe Is this a nest PE?
+  !> @param[in] nest_domain Nest domain structure
+  !> @param[in] position Stagger
+  !> @param[in] p_grid Parent lat/lon grid
+  !> @param[in] n_grid Nest lat/lon grid
+  !> @param[in] wt Interpolation weights
+  !> @param[in] istart_coarse Initial nest offsets
+  !> @param[in] jstart_coarse Initial nest offsets
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD  @date 01/15/2021
   subroutine mn_meta_recalc( delta_i_c, delta_j_c, x_refine, y_refine, tile_geo, parent_geo, fp_super_tile_geo, &
       is_fine_pe, nest_domain, position, p_grid, n_grid, wt, istart_coarse, jstart_coarse, ind)
     integer, intent(in)                           :: delta_i_c, delta_j_c                     !< Nest motion in delta i,j
@@ -1162,8 +1248,16 @@ contains
   !! Step 5.3 -- Adjust index by delta_i_c, delta_j_c
   !!============================================================================
 
-  !>@brief The subroutine 'mn_shift_index' adjusts the index array for a nest move
-  !>@details Fast routine to increment indices by the delta in i,j direction
+  !> The subroutine 'mn_shift_index' adjusts the index array for a
+  !> nest move.
+  !>
+  !> Fast routine to increment indices by the delta in i,j direction.
+  !>
+  !> @param[in] delta_i_c Coarse grid delta i for nest move.
+  !> @param[in] delta_j_c Coarse grid delta j for nest move.
+  !> @param[in] ind ???  
+  !>
+  !> @author W. Ramstrom, AOML/HRD  @date 01/15/2021
   subroutine mn_shift_index(delta_i_c, delta_j_c, ind)
     integer, intent(in)                    :: delta_i_c, delta_j_c    !< Nest move deltas in i,j
     integer, allocatable, intent(inout)    :: ind(:,:,:)              !< Nest to parent index
@@ -1193,8 +1287,27 @@ contains
   !!            -- similar to med_nest_move in HWRF
   !!============================================================================
 
-  !>@brief The subroutine 'mn_prog_shift_data' shifts the data on each nest PE
-  !>@details Iterates through the prognostic variables
+  !> The subroutine 'mn_prog_shift_data' shifts the data on each nest
+  !> PE.
+  !>
+  !> Iterates through the prognostic variables.
+  !>
+  !>
+  !> @param[in] Atm
+  !> @param[in] n
+  !> @param[in] child_grid_num
+  !> @param[in] wt_h
+  !> @param[in] wt_u
+  !> @param[in] wt_v
+  !> @param[in] delta_i_c
+  !> @param[in] delta_j_c
+  !> @param[in] x_refine
+  !> @param[in] Atm, n, child_grid_num, wt_h, wt_u, wt_v, delta_i_c, delta_j_c, x_refine, y_refine, is_fine_pe, nest_domain, nz
+  !> @param[in] Atm, n, child_grid_num, wt_h, wt_u, wt_v, delta_i_c, delta_j_c, x_refine, y_refine, is_fine_pe, nest_domain, nz
+  !> @param[in] Atm, n, child_grid_num, wt_h, wt_u, wt_v, delta_i_c, delta_j_c, x_refine, y_refine, is_fine_pe, nest_domain, nz
+  !> @param[in] Atm, n, child_grid_num, wt_h, wt_u, wt_v, delta_i_c, delta_j_c, x_refine, y_refine, is_fine_pe, nest_domain, nz
+  !>
+  !> @author W. Ramstrom, AOML/HRD  @date 01/15/2021
   subroutine mn_prog_shift_data(Atm, n, child_grid_num, wt_h, wt_u, wt_v, &
       delta_i_c, delta_j_c, x_refine, y_refine, &
       is_fine_pe, nest_domain, nz)
