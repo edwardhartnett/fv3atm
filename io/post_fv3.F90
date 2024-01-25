@@ -1,8 +1,8 @@
 !> @file 
-!> @brief ???
-!> @author Jun Wang @date Mar 11, 2021
+!> @brief Run post on write grid comp.
+!> @author Jun Wang @date Jul, 2019 
 
-!> @brief ???
+!> @brief Run post on write grid comp.
 !>
 !> ## Module History
 !>
@@ -18,10 +18,9 @@
 !> Apr 2022 | W. Meng | 5)read max/min 2m T from tmax_max2m/tmin_min2m for GFS, and from t02max/min for RRFS and  HAFS.
 !> Apr 2022 | W. Meng | 6)read 3D cloud fraction from cld_amt for GFDL MP, and from cldfra for other MPs.
 !> Jun 2022 | J. Meng | 2D decomposition
-!> Jul 2022 | W. Meng | 1)output lat/lon of four corner point for rotated lat-lon grid.
-!> Jul 2022 | W. Meng | 2)read instant model top logwave
+!> Jul 2022 | W. Meng | 1)output lat/lon of four corner point for rotated lat-lon grid. 2)read instant model top logwave
 !>
-!> @author Jun Wang @date Mar 11, 2021
+!> @author Jun Wang @date Jul, 2019 
 module post_fv3
 
   use mpi
@@ -34,24 +33,24 @@ module post_fv3
 
   implicit none
 
-  public post_run_fv3
+  public post_run_fv3 !< Interface to run inline post
 
   contains
 
-    !> Run post on write grid comp.
+    !> Interface to run inline post.
     !>
-    !> @param[inout] wrt_int_state ???
-    !> @param[in] grid_id ???
-    !> @param[in] mype ???
-    !> @param[in] mpicomp ???
-    !> @param[in] lead_write ???
-    !> @param[in] itasks ???
-    !> @param[in] jtasks ???
-    !> @param[in] mynfhr ???
-    !> @param[in] mynfmin ???
-    !> @param[in] mynfsec ???
+    !> @param[in] wrt_int_state write grid component internal state.
+    !> @param[in] grid_id id number of the output grid.
+    !> @param[in] mype MPI rank.
+    !> @param[in] mpicomp MPI communicator of the write grid component.
+    !> @param[in] lead_write lead task of the write group.
+    !> @param[in] itasks number of MPI tasks in i direction of output domain.
+    !> @param[in] jtasks number of MPI tasks in j direction of output domain.
+    !> @param[in] mynfhr output forecast hours on the write grid component.
+    !> @param[in] mynfmin output forecast minutes on the write grid component.
+    !> @param[in] mynfsec output forecast secondson the write grid component.
     !>
-    !> @author Jun Wang @date Mar 11, 2021
+    !> @author Jun Wang @date Jul, 2019 
     subroutine post_run_fv3(wrt_int_state,grid_id,mype,mpicomp,lead_write, &
                             itasks,jtasks,mynfhr,mynfmin,mynfsec)
       use ctlblk_mod, only : komax,ifhr,ifmin,modelname,datapd,fld_info, &
@@ -231,12 +230,12 @@ module post_fv3
 
     end subroutine post_run_fv3
 
-    !> ???
+    !> Subroutine to get attributes for post processing.
     !>
-    !> @param[inout] wrt_int_state ???
-    !> @param[in] grid_id ???
+    !> @param[in] wrt_int_state write grid component internal state.
+    !> @param[in] grid_id id number of the output grid.
     !>
-    !> @author Jun Wang @date Mar 11, 2021
+    !> @author Jun Wang @date Jul, 2019 
     subroutine post_getattr_fv3(wrt_int_state,grid_id)
 !
       use esmf
@@ -505,23 +504,14 @@ module post_fv3
 !
     end subroutine post_getattr_fv3
 
-    !> Set up post fields from nmint_state.
+    !> Subroutine to set post variables.
     !>
-    !> ## Subroutine History
+    !> @param[in] wrt_int_state write grid component internal state.
+    !> @param[in] grid_id id number of the output grid.
+    !> @param[in] mype MPI rank.
+    !> @param[in] mpicomp MPI communicator of the write grid component.
     !>
-    !> Date | Programmer | Modification
-    !> -----|------------|-------------
-    !> Jul 2019 | J. Wang | Initial code
-    !> Apr 2022 | W. Meng | Unify set_postvars_gfs and set_postvars_regional to set_postvars_fv3
-    !> Apr 2023 | W. Meng | Sync RRFS and GFS changes from off-line post
-    !> Jun 2023 | W. Meng | Remove duplicate initialization; relocate computation of aerosol fields
-    !> 
-    !> @param[inout] wrt_int_state ???
-    !> @param[in] grid_id ???
-    !> @param[in] mtype ???
-    !> @param[in] mpicomp ???
-    !>
-    !> @author Jun Wang @date Mar 11, 2021
+    !> @author Jun Wang @date Jul 2019 
     subroutine set_postvars_fv3(wrt_int_state,grid_id,mype,mpicomp)
       use esmf
       use vrbls4d,     only: dust, smoke, fv3dust, coarsepm, SALT, SUSO, SOOT, &
