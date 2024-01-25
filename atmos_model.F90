@@ -911,22 +911,17 @@ subroutine atmos_model_exchange_phase_1 (Atmos, rc)
     endif
 
  end subroutine atmos_model_exchange_phase_1
-! </SUBROUTINE>
 
-
-!#######################################################################
-! <SUBROUTINE NAME="atmos_model_exchange_phase_2"
-!
-! <OVERVIEW>
-!   Perform data exchange with coupled components in run phase 2
-! </OVERVIEW>
-!
-! <DESCRIPTION>
-!  This subroutine currently imports fields updated by the coupled
-!  chemistry component back into the atmospheric model during run
-!  phase 2.
-! </DESCRIPTION>
-
+!> Perform data exchange with coupled components in run phase 2.
+!>
+!> This subroutine currently imports fields updated by the coupled
+!> chemistry component back into the atmospheric model during run
+!> phase 2.
+!>
+!> @param[in] Atmos Derived-type variable.
+!> @param[in] rc Return code.
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine atmos_model_exchange_phase_2 (Atmos, rc)
 
   use ESMF
@@ -947,13 +942,14 @@ subroutine atmos_model_exchange_phase_2 (Atmos, rc)
     endif
 
  end subroutine atmos_model_exchange_phase_2
-! </SUBROUTINE>
 
-
-!#######################################################################
-! <SUBROUTINE NAME="update_atmos_model_state"
-!
-! <OVERVIEW>
+!> ???
+!>
+!>
+!> @param[in] Atmos Derived-type variable.
+!> @param[in] rc Return code.
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine update_atmos_model_state (Atmos, rc)
 ! to update the model state after all concurrency is completed
   use ESMF
@@ -1040,31 +1036,17 @@ subroutine update_atmos_model_state (Atmos, rc)
     endif
 
  end subroutine update_atmos_model_state
-! </SUBROUTINE>
 
-
-
-!#######################################################################
-! <SUBROUTINE NAME="atmos_model_end">
-!
-! <OVERVIEW>
-!  termination routine for atmospheric model
-! </OVERVIEW>
-
-! <DESCRIPTION>
-!  Call once to terminate this module and any other modules used.
-!  This routine writes a restart file and deallocates storage
-!  used by the derived-type variable atmos_boundary_data_type.
-! </DESCRIPTION>
-
-! <TEMPLATE>
-!   call atmos_model_end (Atmos)
-! </TEMPLATE>
-
-! <INOUT NAME="Atmos" TYPE="type(atmos_data_type)">
-!   Derived-type variable that contains fields needed by the flux exchange module.
-! </INOUT>
-
+!> Termination routine for atmospheric model.
+!>
+!> Call once to terminate this module and any other modules used.
+!> This routine writes a restart file and deallocates storage
+!> used by the derived-type variable atmos_boundary_data_type.
+!>
+!> @param[inout] Atmos Derived-type variable that contains fields
+!> needed by the flux exchange module.
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine atmos_model_end (Atmos)
   use get_stochy_pattern_mod, only: write_stoch_restart_atm
   use update_ca, only: write_ca_restart
@@ -1105,12 +1087,12 @@ subroutine atmos_model_end (Atmos)
 
 end subroutine atmos_model_end
 
-! </SUBROUTINE>
-!#######################################################################
-! <SUBROUTINE NAME="atmos_model_restart">
-! <DESCRIPTION>
-!  Write out restart files registered through register_restart_file
-! </DESCRIPTION>
+!> Write out restart files registered through register_restart_file.
+!>
+!> @param[in] Atmos Derived-type variable.
+!> @param[in] timestamp Time stamp.
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine atmos_model_restart(Atmos, timestamp)
   use update_ca, only: write_ca_restart
   type (atmos_data_type),   intent(inout) :: Atmos
@@ -1129,15 +1111,14 @@ subroutine atmos_model_restart(Atmos, timestamp)
        call write_ca_restart(timestamp)
     endif
 end subroutine atmos_model_restart
-! </SUBROUTINE>
 
-!#######################################################################
-! <SUBROUTINE NAME="get_atmos_model_ungridded_dim">
-!
-! <DESCRIPTION>
-!  Retrieve ungridded dimensions of atmospheric model arrays
-! </DESCRIPTION>
-
+!> Retrieve ungridded dimensions of atmospheric model arrays.
+!>
+!> @param[out] nlev ???
+!> @param[out] nsoillev ???
+!> @param[out] ntracers ???
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine get_atmos_model_ungridded_dim(nlev, nsoillev, ntracers)
 
   integer, optional, intent(out) :: nlev, nsoillev, ntracers
@@ -1158,41 +1139,41 @@ subroutine get_atmos_model_ungridded_dim(nlev, nsoillev, ntracers)
   if (present(ntracers)) call get_number_tracers(MODEL_ATMOS, num_tracers=ntracers)
 
 end subroutine get_atmos_model_ungridded_dim
-! </SUBROUTINE>
 
-!#######################################################################
-! <SUBROUTINE NAME="get_atmos_tracer_types">
-! <DESCRIPTION>
-!  Identify and return usage and type id of atmospheric tracers.
-!  Ids are defined as:
-!    0 = generic tracer
-!    1 = chemistry - prognostic
-!    2 = chemistry - diagnostic
-!
-!  Tracers are identified via the additional 'tracer_usage' keyword and
-!  their optional 'type' qualifier. A tracer is assumed prognostic if
-!  'type' is not provided. See examples from the field_table file below:
-!
-!  Prognostic tracer:
-!  ------------------
-!  "TRACER", "atmos_mod",    "so2"
-!            "longname",     "so2 mixing ratio"
-!            "units",        "ppm"
-!            "tracer_usage", "chemistry"
-!            "profile_type", "fixed", "surface_value=5.e-6" /
-!
-!  Diagnostic tracer:
-!  ------------------
-!  "TRACER", "atmos_mod",    "pm25"
-!            "longname",     "PM2.5"
-!            "units",        "ug/m3"
-!            "tracer_usage", "chemistry", "type=diagnostic"
-!            "profile_type", "fixed", "surface_value=5.e-6" /
-!
-!  For atmospheric chemistry, the order of both prognostic and diagnostic
-!  tracers is validated against the model's internal assumptions.
-!
-! </DESCRIPTION>
+!> Identify and return usage and type id of atmospheric tracers.
+!>
+!> Ids are defined as:
+!> - 0 generic tracer
+!> - 1 chemistry - prognostic
+!> - 2 chemistry - diagnostic
+!>
+!> Tracers are identified via the additional 'tracer_usage' keyword and
+!> their optional 'type' qualifier. A tracer is assumed prognostic if
+!> 'type' is not provided. See examples from the field_table file below:
+!> <pre>
+!>  Prognostic tracer:
+!>  ------------------
+!>  "TRACER", "atmos_mod",    "so2"
+!>            "longname",     "so2 mixing ratio"
+!>            "units",        "ppm"
+!>            "tracer_usage", "chemistry"
+!>            "profile_type", "fixed", "surface_value=5.e-6" /
+!>
+!>  Diagnostic tracer:
+!>  ------------------
+!>  "TRACER", "atmos_mod",    "pm25"
+!>            "longname",     "PM2.5"
+!>            "units",        "ug/m3"
+!>            "tracer_usage", "chemistry", "type=diagnostic"
+!>            "profile_type", "fixed", "surface_value=5.e-6" /
+!> </pre>
+!>
+!> For atmospheric chemistry, the order of both prognostic and diagnostic
+!> tracers is validated against the model's internal assumptions.
+!>
+!> @param[out] tracer_types Tracer types.
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine get_atmos_tracer_types(tracer_types)
 
   use field_manager_mod,  only: parse
@@ -1264,25 +1245,25 @@ subroutine get_atmos_tracer_types(tracer_types)
     call mpp_error(FATAL, 'diagnostic chemistry tracers must follow prognostic ones')
 
 end subroutine get_atmos_tracer_types
-! </SUBROUTINE>
 
-!#######################################################################
-! <SUBROUTINE NAME="update_atmos_chemistry">
-! <DESCRIPTION>
-!  Populate exported chemistry fields with current atmospheric state
-!  data (state='export'). Update tracer concentrations for atmospheric
-!  chemistry with values from chemistry component (state='import').
-!  Fields should be exported/imported from/to the atmospheric state
-!  after physics calculations.
-!
-!  NOTE: It is assumed that all the chemical tracers follow the standard
-!  atmospheric tracers, which end with ozone. The order of the chemical
-!  tracers must match their order in the chemistry component.
-!
-!  Requires:
-!         GFS_data
-!         Atm_block
-! </DESCRIPTION>
+!> Populate exported chemistry fields with current atmospheric state
+!> data (state='export'). Update tracer concentrations for atmospheric
+!> chemistry with values from chemistry component (state='import').
+!> Fields should be exported/imported from/to the atmospheric state
+!> after physics calculations.
+!>
+!> NOTE: It is assumed that all the chemical tracers follow the standard
+!> atmospheric tracers, which end with ozone. The order of the chemical
+!> tracers must match their order in the chemistry component.
+!>
+!> Requires:
+!> - GFS_data
+!> - Atm_block
+!>
+!> @param[in] state ???
+!> @param[out] rc Return code.
+!>
+!> @author Jun Wang @date 01/2017
 subroutine update_atmos_chemistry(state, rc)
 
   use ESMF
@@ -1801,8 +1782,13 @@ subroutine update_atmos_chemistry(state, rc)
   end select
 
 end subroutine update_atmos_chemistry
-! </SUBROUTINE>
 
+!> ???
+!>
+!> @param[in] jdat ???
+!> @param[out] rc Return code.
+!>
+!> @author Jun Wang @date 01/2017
   subroutine assign_importdata(jdat, rc)
 
     use module_cplfields,  only: importFields, nImportFields, queryImportFields, &
@@ -2838,6 +2824,11 @@ end subroutine update_atmos_chemistry
   end subroutine assign_importdata
 
 !
+!> ???
+!>
+!> @param[out] rc Return code.
+!>
+!> @author Jun Wang @date 01/2017
   subroutine setup_exportdata(rc)
 
     use ESMF
@@ -3213,6 +3204,12 @@ end subroutine update_atmos_chemistry
 
   end subroutine setup_exportdata
 
+  !> ???
+  !>
+  !> @param[in] fcstGrid Forecast grid.
+  !> @param[out] rc Return code.
+  !>
+  !> @author Jun Wang @date 01/2017
   subroutine addLsmask2grid(fcstGrid, rc)
 
     use ESMF
@@ -3275,7 +3272,16 @@ end subroutine update_atmos_chemistry
     deallocate(lsmask)
 
   end subroutine addLsmask2grid
-!------------------------------------------------------------------------------
+
+  !> ???
+  !>
+  !> @param[in] n ???
+  !> @param[out] layout ???
+  !> @param[out] nx ???
+  !> @param[out] ny ???
+  !> @param[out] pelist ???
+  !>
+  !> @author Jun Wang @date 01/2017
   subroutine atmos_model_get_nth_domain_info(n, layout, nx, ny, pelist)
    integer, intent(in)  :: n
    integer, intent(out) :: layout(2)
