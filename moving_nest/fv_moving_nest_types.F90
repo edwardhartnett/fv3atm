@@ -1,4 +1,3 @@
-
 !> @file
 !> @brief Provides data structures for moving nest functionality.
 !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
@@ -77,6 +76,7 @@ module fv_moving_nest_types_mod
     real(kind=kind_phys), allocatable  :: area(:,:) !< ???
   end type grid_geometry
 
+  !> ???
   type fv_moving_nest_prog_type
     real, _ALLOCATABLE                  :: delz(:,:,:)      _NULL   !< layer thickness (meters)
   end type fv_moving_nest_prog_type
@@ -114,10 +114,10 @@ module fv_moving_nest_types_mod
     !   strong cosz angle dependence = black sky
     !   weak cosz angle dependence = white sky
     !  From the chgres code in static_data.F90, we see the linkage of variable names:
-    !   type(esmf_field), public           :: alvsf_target_grid !< visible black sky albedo
-    !   type(esmf_field), public           :: alvwf_target_grid !< visible white sky albedo
-    !   type(esmf_field), public           :: alnsf_target_grid !< near ir black sky albedo
-    !   type(esmf_field), public           :: alnwf_target_grid !< near ir white sky albedo
+    !   type(esmf_field), public           :: alvsf_target_grid ! visible black sky albedo
+    !   type(esmf_field), public           :: alvwf_target_grid ! visible white sky albedo
+    !   type(esmf_field), public           :: alnsf_target_grid ! near ir black sky albedo
+    !   type(esmf_field), public           :: alnwf_target_grid ! near ir white sky albedo
 
     real, allocatable  :: alvsf_grid(:,:)              _NULL  !< Visible black sky albedo; netCDF file has monthly values
     real, allocatable  :: alvwf_grid(:,:)              _NULL  !< Visible white sky albedo; netCDF file has monthly values
@@ -126,6 +126,7 @@ module fv_moving_nest_types_mod
 
   end type mn_surface_grids
 
+  !> ???
   type fv_moving_nest_physics_type
     real, _ALLOCATABLE                  :: ts(:,:)          _NULL   !< 2D skin temperature/SST
     real, _ALLOCATABLE                  :: slmsk(:,:)       _NULL   !< land sea mask -- 0 for ocean/lakes, 1, for land.  Perhaps 2 for sea ice.
@@ -151,9 +152,9 @@ module fv_moving_nest_types_mod
     real (kind=kind_phys), _ALLOCATABLE :: emis_wat(:,:)    _NULL   !< surface emissivity over water for LSM
     real (kind=kind_phys), _ALLOCATABLE :: sfalb_lnd_bck(:,:) _NULL !< snow-free albedo over land
 
-    !real (kind=kind_phys), _ALLOCATABLE :: semis(:,:)       _NULL   !< surface lw emissivity in fraction
-    !real (kind=kind_phys), _ALLOCATABLE :: semisbase(:,:)   _NULL   !< background surface emissivity
-    !real (kind=kind_phys), _ALLOCATABLE :: sfalb(:,:)       _NULL   !< mean surface diffused sw albedo
+    !real (kind=kind_phys), _ALLOCATABLE :: semis(:,:)       _NULL   ! surface lw emissivity in fraction
+    !real (kind=kind_phys), _ALLOCATABLE :: semisbase(:,:)   _NULL   ! background surface emissivity
+    !real (kind=kind_phys), _ALLOCATABLE :: sfalb(:,:)       _NULL   ! mean surface diffused sw albedo
 
     real (kind=kind_phys), _ALLOCATABLE :: alvsf(:,:)       _NULL   !< visible black sky albedo
     real (kind=kind_phys), _ALLOCATABLE :: alvwf(:,:)       _NULL   !< visible white sky albedo
@@ -179,7 +180,7 @@ module fv_moving_nest_types_mod
     real (kind=kind_phys), _ALLOCATABLE :: tsfco (:,:)      _NULL   !< surface temperature ocean
     real (kind=kind_phys), _ALLOCATABLE :: tsfcl (:,:)      _NULL   !< surface temperature land
     real (kind=kind_phys), _ALLOCATABLE :: tsfc (:,:)       _NULL   !< surface temperature
-    !real (kind=kind_phys), _ALLOCATABLE :: tsfc_radtime (:,:) _NULL !< surface temperature on radiative timestep
+    !real (kind=kind_phys), _ALLOCATABLE :: tsfc_radtime (:,:) _NULL ! surface temperature on radiative timestep
 
     real (kind=kind_phys), _ALLOCATABLE :: cv  (:,:)        _NULL   !< fraction of convective cloud
     real (kind=kind_phys), _ALLOCATABLE :: cvt (:,:)        _NULL   !< convective cloud top pressure
@@ -205,7 +206,7 @@ module fv_moving_nest_types_mod
     real (kind=kind_phys), _ALLOCATABLE :: xtts (:,:)       _NULL   !< d(xt)/d(ts) for NSSTM
     real (kind=kind_phys), _ALLOCATABLE :: xzts (:,:)       _NULL   !< d(xz)/d(ts) for NSSTM
     real (kind=kind_phys), _ALLOCATABLE :: d_conv (:,:)     _NULL   !< think of free convection layer for NSSTM
-    ! real (kind=kind_phys), _ALLOCATABLE :: ifd (:,:)      _NULL   !< index to start DTM run  for NSSTM   ! TODO Probably can't interpolate an index.
+    ! real (kind=kind_phys), _ALLOCATABLE :: ifd (:,:)      _NULL   ! index to start DTM run  for NSSTM   ! TODO Probably can't interpolate an index.
     !  IFD values are 0 for land, and 1 for oceans/lakes -- reverse of the land sea mask
     !  Land Sea Mask has values of 0 for oceans/lakes, 1 for land, 2 for sea ice
     real (kind=kind_phys), _ALLOCATABLE :: dt_cool (:,:)    _NULL   !< sub-layer cooling amount for NSSTM

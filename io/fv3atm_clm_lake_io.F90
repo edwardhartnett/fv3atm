@@ -7,7 +7,7 @@
     if(associated(clm_lake%var)) then ; \
       deallocate(clm_lake%var) ; \
       nullify(clm_lake%var) ; \
-    endif
+    endif;
 
 !> @brief Read and write restart files for the CLM Lake Model.
 !>
