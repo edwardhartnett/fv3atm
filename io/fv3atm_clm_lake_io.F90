@@ -2,7 +2,7 @@
 !> @brief Read and write restart files for the CLM Lake Model.
 !> @author Samuel Trahan @date Jun 20, 2023
 
-!> This #define reduces code length by a lot.
+!> This define reduces code length by a lot.
 #define IF_ASSOC_DEALLOC_NULL(var) \
     if(associated(clm_lake%var)) then ; \
       deallocate(clm_lake%var) ; \
@@ -193,8 +193,8 @@ CONTAINS
   !> appropriate indices.
   !>
   !> @param clm_lake ???
-  !> @param Model ???
-  !> @Sfc_restart ???
+  !> @param[in] Model ???
+  !> @param Sfc_restart ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   subroutine clm_lake_write_axes(clm_lake, Model, Sfc_restart)

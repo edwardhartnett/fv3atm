@@ -2,7 +2,6 @@
 !> @brief Module containing history files output routines.
 !> @author Dusan Jovic @date Nov 1, 2017
 
-!> @def ESMF_ERR_RETURN(rc)
 !> Return error to ESMF and finalize it.
 #define ESMF_ERR_RETURN(rc) \
     if (ESMF_LogFoundError(rc, msg="Breaking out of subroutine", line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
@@ -10,7 +9,7 @@
 !> Return error to ESMF and finalize it.
 #define NC_ERR_STOP(status) \
     if (status /= nf90_noerr) write(0,*) "file: ", __FILE__, " line: ", __LINE__, trim(nf90_strerror(status)); \
-    if (status /= nf90_noerr) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+    if (status /= nf90_noerr) call ESMF_Finalize(endflag=ESMF_END_ABORT) !< ???
 
 !> @brief Output routines for writing history files.
 !>

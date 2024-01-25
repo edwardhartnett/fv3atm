@@ -1392,7 +1392,7 @@ contains
     implicit none
     type(phy_data_type) :: phy
 
-    ! This #define reduces code length by a lot
+    !> This define reduces code length by a lot.
 #define IF_ASSOC_DEALLOC_NULL(var) \
     if(associated(phy%var)) then ; \
       deallocate(phy%var) ; \

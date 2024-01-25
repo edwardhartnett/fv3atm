@@ -85,7 +85,7 @@ contains
 
     call get_nx_ny_from_atm(Atm_block, nx, ny)
 
-    !> This #define reduces code length by a lot
+    !> This define reduces code length by a lot
 #define WARN_DISASSOCIATE(name) \
     if(associated(name)) then ; \
       write(0,*) 'Internal error. Called oro%register twice. Will try to keep going anyway.' ; \

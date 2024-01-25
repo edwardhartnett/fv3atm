@@ -1,7 +1,6 @@
 !> @file
 !> @brief Provides subroutines for grid bounding boxes for moving nest.
-!> @author W. Ramstrom, AOML/HRD  @date 07/28/2021
-!> @email William.Ramstrom@noaa.gov
+!> @author W. Ramstrom (William.Ramstrom@noaa.gov), AOML/HRD  @date 07/28/2021
 
 !***********************************************************************
 !*                   GNU General Public License                        *
@@ -46,6 +45,7 @@ module bounding_box_mod
     integer :: je !< ???
   end type bbox
 
+  !> ???
   interface fill_bbox
     module procedure fill_bbox_r4_2d
     module procedure fill_bbox_r4_3d
