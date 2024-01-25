@@ -57,7 +57,7 @@ module fv3atm_common_io
   end interface copy_from_GFS_Data
 
   !> These subroutines copy data from nb-ix-z grid arrays to x-y-z arrays.
-  !> @section copy_to_GFS_Data interface
+  !>
   !> There are different combinations of decomposition, copy methods,
   !> and datatypes. All are combined together into copy_to_GFS_Data()
   !> for convenience.
@@ -73,7 +73,6 @@ module fv3atm_common_io
   !> @brief These subroutines copy data in either direction between
   !> nb-ix-z grid arrays and x-y-z arrays.
   !>
-  !> @section GFS_data_transfer interface functions.
   !> This interface allows a single subroutine to handle both reading
   !> and writing restart files. The direction is controled by the "to"
   !> argument (first argument) which is true when copying from x-y-z
@@ -118,15 +117,16 @@ contains
     endif
   end subroutine get_nx_ny_from_atm
 
-  !> Copies from the ix-indexed var_block to the 2d x-y real(kind_phys) var2d array.
+  !> Copies from the ix-indexed var_block to the 2d x-y
+  !> real(kind_phys) var2d array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var2d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var2d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_from_GFS_Data_2d_phys2phys(ii1,jj1,isc,jsc,nt,var2d,var_block)
@@ -145,13 +145,13 @@ contains
 
   !> Copies from the ix-k-indexed var_block to the 3d x-y-z real(kind_phys) var3d array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var3d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var2d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_from_GFS_Data_3d_phys2phys(ii1,jj1,isc,jsc,nt,var3d,var_block)
@@ -172,13 +172,13 @@ contains
 
   !> Copies from the ix-k-indexed var_block to the 3d x-y-z integer var2d array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var2d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var2d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_from_GFS_Data_2d_int2phys(ii1,jj1,isc,jsc,nt,var2d,var_block)
@@ -196,13 +196,13 @@ contains
 
   !> Copies a range of levels from the ix-k-indexed var_block to the x-y real(kind_phys) var3d array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var3d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var3d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_from_GFS_Data_2d_stack_phys2phys(ii1,jj1,isc,jsc,nt,var3d,var_block)
@@ -224,13 +224,13 @@ contains
 
   !> Copies from the ix-k-indexed var_block to the x-y integer var3d array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var3d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var3d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_from_GFS_Data_3d_int2phys(ii1,jj1,isc,jsc,nt,var3d,var_block)
@@ -250,13 +250,13 @@ contains
 
   !> Copies a range of levels from from the ix-k-indexed var_block to the x-y-z real(kind_phys) var3d array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var3d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var3d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_from_GFS_Data_3d_slice_phys2phys(ii1,jj1,isc,jsc,nt,k1,k2,var3d,var_block)
@@ -277,13 +277,13 @@ contains
 
   !> Copies from x-y real(kind_phys) var2d array to the ix-indexed var_block array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var2d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var2d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_to_GFS_Data_2d_phys2phys(ii1,jj1,isc,jsc,nt,var2d,var_block)
@@ -302,13 +302,13 @@ contains
 
   !> Copies from x-y-z real(kind_phys) var3d array to the ix-k-indexed var_block array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var3d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var3d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_to_GFS_Data_3d_phys2phys(ii1,jj1,isc,jsc,nt,var3d,var_block)
@@ -329,13 +329,13 @@ contains
 
   !> Copies from x-y-z real(kind_phys) var3d array to the ix-k-indexed var_block array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var3d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var3d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_to_GFS_Data_2d_stack_phys2phys(ii1,jj1,isc,jsc,nt,var3d,var_block)
@@ -357,15 +357,15 @@ contains
 
   !> Copies a range of levels from the x-y-z real(kind_phys) var3d array to the ix-k-indexed var_block array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param k1 ???
-  !> @param k2 ???
-  !> @param var3d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[in] k1 ???
+  !> @param[in] k2 ???
+  !> @param[inout] var3d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_to_GFS_Data_3d_slice_phys2phys(ii1,jj1,isc,jsc,nt,k1,k2,var3d,var_block)
@@ -386,13 +386,13 @@ contains
 
   !> Copies from x-y integer var2d array to the ix-indexed var_block array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var2d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var2d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_to_GFS_Data_2d_int2phys(ii1,jj1,isc,jsc,nt,var2d,var_block)
@@ -411,13 +411,13 @@ contains
 
   !> Copies from x-y-z integer var3d array to the ix-k-indexed var_block array.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var3d ???
-  !> @param var_block ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var3d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine copy_to_GFS_Data_3d_int2phys(ii1,jj1,isc,jsc,nt,var3d,var_block)
@@ -436,19 +436,19 @@ contains
 
   !> Copies between the ix-indexed var_block array and x-y real(kind_phys) var2d array.
   !>
-  !> \section GFS_data_transfer_2d_phys2phys subroutine from the GFS_data_transfer interface
   !> This is a wrapper around copy_to_GFS_Data and copy_from_GFS_Data routines.
   !> If to=true, then data is copied to var_block (the GFS_Data structures) but if
   !> to=false, it is copied from the var_block arrays. This allows the same subroutine
   !> to both read and write, preventing error-prone code duplication.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var2d ???
-  !> @param var_block ???
+  !> @param[in] to ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var2d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine GFS_data_transfer_2d_phys2phys(to,ii1,jj1,isc,jsc,nt,var2d,var_block)
@@ -466,20 +466,22 @@ contains
     end if
   end subroutine GFS_data_transfer_2d_phys2phys
 
-  !> Copies between the ix-k-indexed var_block array and x-y-z real(kind_phys) var3d array.
-  !> \section GFS_data_transfer_3d_phys2phys subroutine from the GFS_data_transfer interface
+  !> Copies between the ix-k-indexed var_block array and x-y-z
+  !> real(kind_phys) var3d array.
+  !>
   !> This is a wrapper around copy_to_GFS_Data and copy_from_GFS_Data routines.
   !> If to=true, then data is copied to var_block (the GFS_Data structures) but if
   !> to=false, it is copied from the var_block arrays. This allows the same subroutine
   !> to both read and write, preventing error-prone code duplication.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var2d ???
-  !> @param var_block ???
+  !> @param[in] to ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var2d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine GFS_data_transfer_3d_phys2phys(to,ii1,jj1,isc,jsc,nt,var3d,var_block)
@@ -571,13 +573,14 @@ contains
   !> to=false, it is copied from the var_block arrays. This allows the same subroutine
   !> to both read and write, preventing error-prone code duplication.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var2d ???
-  !> @param var_block ???
+  !> @param[in] to ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var2d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine GFS_data_transfer_3d_int2phys(to,ii1,jj1,isc,jsc,nt,var3d,var_block)
@@ -595,20 +598,22 @@ contains
     endif
   end subroutine GFS_data_transfer_3d_int2phys
 
-  !> Copies a range of levels between the ix-k-indexed var_block array and x-y-z real(kind_phys) var3d array.
-  !> \section GFS_Data_transfer_2d_stack_phys2phys subroutine from the GFS_data_transfer interface
+  !> Copies a range of levels between the ix-k-indexed var_block array
+  !> and x-y-z real(kind_phys) var3d array.
+  !>
   !> This is a wrapper around copy_to_GFS_Data and copy_from_GFS_Data routines.
   !> If to=true, then data is copied to var_block (the GFS_Data structures) but if
   !> to=false, it is copied from the var_block arrays. This allows the same subroutine
   !> to both read and write, preventing error-prone code duplication.
   !>
-  !> @param ii1 ???
-  !> @param jj1 ???
-  !> @param isc ???
-  !> @param jsc ???
-  !> @param nt ???
-  !> @param var2d ???
-  !> @param var_block ???
+  !> @param[in] to ???
+  !> @param[in] ii1 ???
+  !> @param[in] jj1 ???
+  !> @param[in] isc ???
+  !> @param[in] jsc ???
+  !> @param[inout] nt ???
+  !> @param[inout] var2d ???
+  !> @param[inout] var_block ???
   !>
   !> @author Samuel Trahan @date Jun 20, 2023
   pure subroutine GFS_Data_transfer_2d_stack_phys2phys(to,ii1,jj1,isc,jsc,nt,var3d,var_block)
