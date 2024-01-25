@@ -38,9 +38,6 @@ module fv3atm_history_io_mod
   public  fv_phys_bundle_setup
 #endif
 
-  !>\defgroup fv3atm_history_io_mod FV3ATM History I/O Module
-  !> @{
-
   !> The maximum allowed number of diagnostic fields that can be
   !> defined in any given model run. This does not include rrfs-sd or
   !> clm lake, which have their own data structures.

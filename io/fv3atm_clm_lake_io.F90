@@ -36,9 +36,6 @@ module fv3atm_clm_lake_io
        clm_lake_copy_from_grid, clm_lake_copy_to_grid, clm_lake_bundle_fields, &
        clm_lake_final, clm_lake_fill_data
 
-  !>\defgroup CLM Lake Model restart public interface
-  !>  @{
-
   !> The clm_lake_data_type derived type is a class that stores
   !> temporary arrays used to read or write CLM Lake model restart
   !> and axis variables. It can safely be declared and unused, but

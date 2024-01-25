@@ -109,7 +109,7 @@ module fv_moving_nest_mod
 
 #include <fms_platform.h>
 
-  !! Step 2
+  !> Step 2
   interface mn_var_fill_intern_nest_halos
     module procedure mn_var_fill_intern_nest_halos_r4_2d
     module procedure mn_var_fill_intern_nest_halos_r4_3d
@@ -123,7 +123,7 @@ module fv_moving_nest_mod
   end interface mn_var_fill_intern_nest_halos
 
 
-  !! Step 6
+  !> Step 6
   interface mn_var_shift_data
     module procedure mn_var_shift_data_r4_2d
     module procedure mn_var_shift_data_r4_3d
@@ -134,12 +134,13 @@ module fv_moving_nest_mod
     module procedure mn_var_shift_data_r8_4d
   end interface mn_var_shift_data
 
-  !! Step 8
+  !> Step 8
   interface mn_var_dump_to_netcdf
     module procedure mn_var_dump_2d_to_netcdf
     module procedure mn_var_dump_3d_to_netcdf
   end interface mn_var_dump_to_netcdf
 
+  !> ???
   interface mn_static_read_hires
     module procedure  mn_static_read_hires_r4
     module procedure  mn_static_read_hires_r8
