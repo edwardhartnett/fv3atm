@@ -1,3 +1,7 @@
+!> @file
+!> @brief Subroutines to enable moving nest functionality in FV3 dynamic core.
+!> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
+
 !***********************************************************************
 !*                   GNU General Public License                        *
 !* This file is a part of fvGFS.                                       *
@@ -18,13 +22,9 @@
 !* or see:   http://www.gnu.org/licenses/gpl.html                      *
 !***********************************************************************
 
-!***********************************************************************
-!> @file
-!! @brief   Provides subroutines to enable moving nest functionality in FV3 dynamic core.
-!! @author W. Ramstrom, AOML/HRD   01/15/2021
-!! @email William.Ramstrom@noaa.gov
-! =======================================================================!
-
+!> @brief Subroutines to enable moving nest functionality in FV3 dynamic core.
+!>
+!> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
 module fv_moving_nest_utils_mod
 
   use mpp_mod,           only: FATAL, WARNING, MPP_DEBUG, NOTE, MPP_CLOCK_SYNC,MPP_CLOCK_DETAILED
