@@ -879,22 +879,18 @@ subroutine update_atmos_model_dynamics (Atmos)
     call mpp_clock_end(fv3Clock)
 
 end subroutine update_atmos_model_dynamics
-! </SUBROUTINE>
 
 
-!#######################################################################
-! <SUBROUTINE NAME="atmos_model_exchange_phase_1"
-!
-! <OVERVIEW>
-!   Perform data exchange with coupled components in run phase 1
-! </OVERVIEW>
-!
-! <DESCRIPTION>
-!  This subroutine currently exports atmospheric fields and tracers
-!  to the chemistry component during the model's run phase 1, i.e.
-!  before chemistry is run.
-! </DESCRIPTION>
-
+!> Perform data exchange with coupled components in run phase 1.
+!>
+!>  This subroutine currently exports atmospheric fields and tracers
+!>  to the chemistry component during the model's run phase 1, i.e.
+!>  before chemistry is run.
+!>
+!> @param[in] Atmos Derived-type variable.
+!> @param[out] rc Return code.
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine atmos_model_exchange_phase_1 (Atmos, rc)
 
   use ESMF
