@@ -940,7 +940,26 @@ contains
 
   !> ???
   !>
-  !> @param[in] length ???
+  !> @param[inout] Atm ???
+  !> @param[in] Time ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine output_partial_atcfunix(Atm,Time, &
@@ -981,7 +1000,33 @@ contains
 
   !> ???
   !>
-  !> @param[in] length ???
+  !> @param[inout] Atm ???
+  !> @param[inout] min_mslp ???
+  !> @param[inout] max_wind ???
+  !> @param[inout] rmw ???
+  !> @param[inout] max_wind_search_radius ???
+  !> @param[inout] min_mlsp_search_radius ???
+  !> @param[inout] clon ???
+  !> @param[inout] clat ???
+  !> @param[in] Time ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] its ???
+  !> @param[in] ite ???
+  !> @param[in] jts ???
+  !> @param[in] jte ???
+  !> @param[in] kts ???
+  !> @param[in] kte ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_wind_pres_intensity(Atm, &
@@ -1076,9 +1121,52 @@ contains
 
   end subroutine get_wind_pres_intensity
 
-  !> ???
+  !> This is the same as "fixcenter" in gettrk_main.
   !>
-  !> @param[in] length ???
+
+  !> This subroutine loops through the different parameters for the
+  !> input storm number (ist) and calculates the center position of
+  !> the storm by taking an average of the center positions obtained
+  !> for those parameters. First we check to see which parameters are
+  !> within a max error range (errmax), and we discard those that are
+  !> not within that range.  Of the remaining parms, we get a mean
+  !> position, and then we re-calculate the position by giving more
+  !> weight to those estimates that are closer to this mean
+  !> first-guess position estimate.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] icen array of center gridpoint locations.
+  !> @param[in] jcen array of center gridpoint locations.
+  !> @param[in] calcperm array of center validity flags (true = center is valid).
+  !> @param[in] loncen center geographic locations.
+  !> @param[in] latcen center geographic locations.
+  !> @param[in] iguess first guess gridpoint location.
+  !> @param[in] jguess first guess gridpoint location.
+  !> @param[in] longuess first guess geographic location.
+  !> @param[in] latguess first guess geographic location.
+  !> @param[out] ifinal final center gridpoint location.
+  !> @param[out] jfinal final center gridpoint location.
+  !> @param[out] lonfinal final center geographic location.
+  !> @param[out] latfinal final center geographic location.
+  !> @param[in]  north_hemi true = northern hemisphere, false=south
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine fixcenter(Atm,icen,jcen,calcparm,loncen,latcen, &
@@ -1088,34 +1176,6 @@ contains
       ids,ide, jds,jde, kds,kde, &
       ims,ime, jms,jme, kms,kme, &
       ips,ipe, jps,jpe, kps,kpe)
-    ! This is the same as "fixcenter" in gettrk_main.  Original comment:
-    !
-    ! ABSTRACT: This subroutine loops through the different parameters
-    !           for the input storm number (ist) and calculates the
-    !           center position of the storm by taking an average of
-    !           the center positions obtained for those parameters.
-    !           First we check to see which parameters are within a
-    !           max error range (errmax), and we discard those that are
-    !           not within that range.  Of the remaining parms, we get
-    !           a mean position, and then we re-calculate the position
-    !           by giving more weight to those estimates that are closer
-    !           to this mean first-guess position estimate.
-
-    ! Arguments: Input:
-    ! grid - the grid being processed
-    ! icen,jcen - arrays of center gridpoint locations
-    ! calcperm - array of center validity flags (true = center is valid)
-    ! loncen,latcen - center geographic locations
-    ! iguess,jguess - first guess gridpoint location
-    ! longuess,latguess - first guess geographic location
-
-    ! Arguments: Output:
-    ! ifinal,jfinal - final center gridpoint location
-    ! lonfinal,latfinal - final center geographic location
-
-    ! Arguments: Optional input:
-    ! north_hemi - true = northern hemisphere, false=south
-
     implicit none
     integer, intent(in) :: &
         ids,ide, jds,jde, kds,kde, &
