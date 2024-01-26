@@ -139,13 +139,12 @@ module fv_tracker_mod
 
 contains
 
-  !> ???
+  !> Initialize tracker variables in the Atm structure.
   !>
   !> @param[in] length ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine fv_tracker_init(length)
-    ! Initialize tracker variables in the Atm structure.
     implicit none
     integer, intent(in)     :: length
 
@@ -185,7 +184,11 @@ contains
 
   !> ???
   !>
-  !> @param[in] length ???
+  !> @param[in] i ???
+  !> @param[in] is ???
+  !> @param[in] ie ???
+  !> @param[in] js ???
+  !> @param[in] je ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine allocate_tracker(i, is, ie, js, je)
@@ -216,7 +219,7 @@ contains
 
   !> ???
   !>
-  !> @param[in] length ???
+  !> @param[in] nn ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine deallocate_tracker(nn)
@@ -250,7 +253,11 @@ contains
 
   !> ???
   !>
-  !> @param[in] length ???
+  !> @param[in] Atm ???
+  !> @param[in] mygrid ???
+  !> @param[in] ngrids ???
+  !> @param[in] is_moving_nest ???
+  !> @param[in] moving_nest_parent ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine check_is_moving_nest(Atm, mygrid, ngrids, is_moving_nest, moving_nest_parent)
@@ -280,7 +287,10 @@ contains
 
   !> ???
   !>
-  !> @param[in] length ???
+  !> @param[in] Atm ???
+  !> @param[in] mygrid ???
+  !> @param[in] Time ???
+  !> @param[in] Time_step ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine execute_tracker(Atm, mygrid, Time, Time_step)
@@ -322,16 +332,18 @@ contains
 
   end subroutine execute_tracker
 
-  !> ???
+  !> Top-level entry to the internal GFDL/NCEP vortex tracker.
   !>
-  !> @param[in] length ???
+  !> Finds the center of the storm in the specified Atm and updates
+  !> the Atm variables. Will do nothing and return immediately if
+  !> tracker%tracker_gave_up=.true.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] n ???
+  !> @param[in] Time ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine fv_tracker_center(Atm, n, Time)
-    ! Top-level entry to the internal GFDL/NCEP vortex tracker. Finds the center of
-    ! the storm in the specified Atm and updates the Atm variables.
-    ! Will do nothing and return immediately if
-    ! tracker%tracker_gave_up=.true.
     implicit none
     type(fv_atmos_type), intent(inout) :: Atm
     integer, intent(in)                :: n
@@ -357,7 +369,9 @@ contains
 
   !> ???
   !>
-  !> @param[in] length ???
+  !> @param[in] Atm ???
+  !> @param[in] zvir ???
+  !> @param[in] Time ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine fv_diag_tracker(Atm, zvir, Time)
@@ -477,18 +491,38 @@ contains
 
   end subroutine fv_diag_tracker
 
-  !> ???
+  !> This is the main entry point to the tracker.
   !>
-  !> @param[in] length ???
+  !> It is most similar to the function "tracker" in the GFDL/NCEP
+  !> vortex tracker.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[inout] tracker ???
+  !> @param[in] Time ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine ntc_impl(Atm,tracker,Time, &
       ids,ide,jds,jde,kds,kde, &
       ims,ime,jms,jme,kms,kme, &
       ips,ipe,jps,jpe,kps,kpe)
-    ! This is the main entry point to the tracker.  It is most similar
-    ! to the function "tracker" in the GFDL/NCEP vortex tracker.
-
     implicit none
     type(fv_atmos_type), intent(inout) :: Atm
     type(fv_tracker_type), intent(inout) :: tracker
@@ -778,7 +812,25 @@ contains
 
   !> ???
   !>
-  !> @param[in] length ???
+  !> @param[in] Atm ???
+  !> @param[out] ids ???
+  !> @param[out] ide ???
+  !> @param[out] jds ???
+  !> @param[out] jde ???
+  !> @param[out] kds ???
+  !> @param[out] kde ???
+  !> @param[out] ims ???
+  !> @param[out] ime ???
+  !> @param[out] jms ???
+  !> @param[out] jme ???
+  !> @param[out] kms ???
+  !> @param[out] kme ???
+  !> @param[out] ips ???
+  !> @param[out] ipe ???
+  !> @param[out] jps ???
+  !> @param[out] jpe ???
+  !> @param[out] kps ???
+  !> @param[out] kpe ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_ijk_from_domain(Atm,  &
@@ -807,9 +859,35 @@ contains
     kpe = Atm%npz
   end subroutine get_ijk_from_domain
 
-  !> ???
+  !> Finds the nearest point in the domain to the specified lon,lat
+  !> location.
   !>
-  !> @param[in] length ???
+  !> @param[inout] Atm ???
+  !> @param[out] iloc ???
+  !> @param[out] jloc ???
+  !> @param[out] ierr ???
+  !> @param[in] lon ???
+  !> @param[in] lat ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
+  !> @param[in] lonnear ???
+  !> @param[in] latnear ???
   !>
   !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_nearest_lonlat(Atm,iloc,jloc,ierr,lon,lat, &
@@ -817,8 +895,6 @@ contains
       ims,ime, jms,jme, kms,kme, &
       ips,ipe, jps,jpe, kps,kpe, &
       lonnear, latnear)
-    ! Finds the nearest point in the domain to the specified lon,lat
-    ! location.
     implicit none
     type(fv_atmos_type), intent(inout) :: Atm
     integer, intent(in) :: ids,ide,jds,jde,kds,kde
