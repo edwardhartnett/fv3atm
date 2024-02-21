@@ -142,7 +142,7 @@ module fv_moving_nest_types_mod
 
     real (kind=kind_phys), _ALLOCATABLE :: zorl (:,:)       _NULL   !< roughness length
     real (kind=kind_phys), _ALLOCATABLE :: zorll (:,:)      _NULL   !< land roughness length
-    !real (kind=kind_phys), _ALLOCATABLE :: zorli (:,:)     _NULL   !< ice surface roughness length ! TODO do we need this?
+    !real (kind=kind_phys), _ALLOCATABLE :: zorli (:,:)     _NULL   < ice surface roughness length ! TODO do we need this?
     real (kind=kind_phys), _ALLOCATABLE :: zorlw (:,:)      _NULL   !< wave surface roughness length
     real (kind=kind_phys), _ALLOCATABLE :: zorlwav (:,:)    _NULL   !< wave surface roughness in cm derived from wave model
 
