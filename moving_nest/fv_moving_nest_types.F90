@@ -1,3 +1,7 @@
+!> @file
+!> @brief Provides data structures for moving nest functionality.
+!> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
+
 !***********************************************************************
 !*                   GNU General Public License                        *
 !* This file is a part of fvGFS.                                       *
@@ -18,13 +22,9 @@
 !* or see:   http://www.gnu.org/licenses/gpl.html                      *
 !***********************************************************************
 
-!***********************************************************************
-!> @file
-!! @brief Provides data structures for moving nest functionality
-!! @author W. Ramstrom, AOML/HRD   03/24/2022
-!! @email William.Ramstrom@noaa.gov
-! =======================================================================!
-
+!> @brief Provides data structures for moving nest functionality.
+!>
+!> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
 module fv_moving_nest_types_mod
 
 #include <fms_platform.h>
@@ -42,85 +42,91 @@ module fv_moving_nest_types_mod
 
   implicit none
 
+  !> ???
   type fv_moving_nest_flag_type
     ! Moving Nest Namelist Variables
-    logical               :: is_moving_nest = .false.
-    character(len=120)    :: surface_dir = "INPUT/moving_nest"
-    integer               :: terrain_smoother = 4
-    integer               :: vortex_tracker = 0
-    integer               :: ntrack = 1
-    integer               :: corral_x = 5
-    integer               :: corral_y = 5
+    logical               :: is_moving_nest = .false. !< ???
+    character(len=120)    :: surface_dir = "INPUT/moving_nest" !< ???
+    integer               :: terrain_smoother = 4 !< ???
+    integer               :: vortex_tracker = 0 !< ???
+    integer               :: ntrack = 1 !< ???
+    integer               :: corral_x = 5 !< ???
+    integer               :: corral_y = 5 !< ???
 
-    integer               :: outatcf_lun = 600
+    integer               :: outatcf_lun = 600 !< ???
 
     ! Moving nest related variables
-    integer               :: move_cd_x = 0
-    integer               :: move_cd_y = 0
-    logical               :: do_move = .false.
+    integer               :: move_cd_x = 0 !< ???
+    integer               :: move_cd_y = 0 !< ???
+    logical               :: do_move = .false. !< ???
   end type fv_moving_nest_flag_type
 
-  ! Encapsulates the grid definition data, such as read from the netCDF files
+  !> Encapsulates the grid definition data, such as read from the netCDF files.
   type grid_geometry
-    integer   :: nx, ny, nxp, nyp
+    integer   :: nx !< ???
+    integer   :: ny !< ???
+    integer   :: nxp !< ???
+    integer   :: nyp !< ???
 
-    real(kind=kind_phys), allocatable  :: lats(:,:)
-    real(kind=kind_phys), allocatable  :: lons(:,:)
+    real(kind=kind_phys), allocatable  :: lats(:,:) !< ???
+    real(kind=kind_phys), allocatable  :: lons(:,:) !< ???
 
     !real, allocatable  :: dx(:,:)
     !real, allocatable  :: dy(:,:)
-    real(kind=kind_phys), allocatable  :: area(:,:)
+    real(kind=kind_phys), allocatable  :: area(:,:) !< ???
   end type grid_geometry
 
+  !> ???
   type fv_moving_nest_prog_type
     real, _ALLOCATABLE                  :: delz(:,:,:)      _NULL   !< layer thickness (meters)
   end type fv_moving_nest_prog_type
 
-  ! TODO deallocate these at end of model run.  They are only allocated once, at first nest move, inside mn_static_read_hires().
-  !  Note these are only 32 bits for now; matching the precision of the input netCDF files
-  !  though the model generally handles physics variables with 64 bit precision
+  !> TODO deallocate these at end of model run.  They are only allocated once, at first nest move, inside mn_static_read_hires().
+  !>  Note these are only 32 bits for now; matching the precision of the input netCDF files
+  !>  though the model generally handles physics variables with 64 bit precision
   type mn_surface_grids
-    real, allocatable  :: orog_grid(:,:)               _NULL  ! orography -- raw or filtered depending on namelist option, in meters
-    real, allocatable  :: orog_std_grid(:,:)           _NULL  ! terrain standard deviation for gravity wave drag, in meters (?)
-    real, allocatable  :: ls_mask_grid(:,:)            _NULL  ! land sea mask -- 0 for ocean/lakes, 1, for land.  Perhaps 2 for sea ice.
-    real, allocatable  :: land_frac_grid(:,:)          _NULL  ! Continuous land fraction - 0.0 ocean, 0.5 half of each, 1.0 all land
+    real, allocatable  :: orog_grid(:,:)               _NULL  !< orography -- raw or filtered depending on namelist option, in meters
+    real, allocatable  :: orog_std_grid(:,:)           _NULL  !< terrain standard deviation for gravity wave drag, in meters (?)
+    real, allocatable  :: ls_mask_grid(:,:)            _NULL  !< land sea mask -- 0 for ocean/lakes, 1, for land.  Perhaps 2 for sea ice.
+    real, allocatable  :: land_frac_grid(:,:)          _NULL  !< Continuous land fraction - 0.0 ocean, 0.5 half of each, 1.0 all land
 
-    real, allocatable  :: parent_orog_grid(:,:)        _NULL  ! parent orography -- only used for terrain_smoother=1.
+    real, allocatable  :: parent_orog_grid(:,:)        _NULL  !< parent orography -- only used for terrain_smoother=1.
     !     raw or filtered depending on namelist option,in meters
 
     ! Soil variables
-    real, allocatable  :: deep_soil_temp_grid(:,:)     _NULL  ! deep soil temperature at 5m, in degrees K
-    real, allocatable  :: soil_type_grid(:,:)          _NULL  ! STATSGO soil type
+    real, allocatable  :: deep_soil_temp_grid(:,:)     _NULL  !< deep soil temperature at 5m, in degrees K
+    real, allocatable  :: soil_type_grid(:,:)          _NULL  !< STATSGO soil type
 
     ! Vegetation variables
-    real, allocatable  :: veg_frac_grid(:,:)           _NULL  ! vegetation fraction
-    real, allocatable  :: veg_type_grid(:,:)           _NULL  ! IGBP vegetation type
-    real, allocatable  :: veg_greenness_grid(:,:)      _NULL  ! NESDIS vegetation greenness; netCDF file has monthly values
+    real, allocatable  :: veg_frac_grid(:,:)           _NULL  !< vegetation fraction
+    real, allocatable  :: veg_type_grid(:,:)           _NULL  !< IGBP vegetation type
+    real, allocatable  :: veg_greenness_grid(:,:)      _NULL  !< NESDIS vegetation greenness; netCDF file has monthly values
 
     ! Orography variables
-    real, allocatable  :: slope_type_grid(:,:)         _NULL  ! legacy 1 degree GFS slope type
+    real, allocatable  :: slope_type_grid(:,:)         _NULL  !< legacy 1 degree GFS slope type
 
     ! Albedo variables
-    real, allocatable  :: max_snow_alb_grid(:,:)       _NULL  ! max snow albedo
-    real, allocatable  :: facsf_grid(:,:)              _NULL  ! fractional coverage with strong cosz dependency
-    real, allocatable  :: facwf_grid(:,:)              _NULL  ! fractional coverage with weak cosz dependency
+    real, allocatable  :: max_snow_alb_grid(:,:)       _NULL  !< max snow albedo
+    real, allocatable  :: facsf_grid(:,:)              _NULL  !< fractional coverage with strong cosz dependency
+    real, allocatable  :: facwf_grid(:,:)              _NULL  !< fractional coverage with weak cosz dependency
 
     ! Snow free albedo
     !   strong cosz angle dependence = black sky
     !   weak cosz angle dependence = white sky
     !  From the chgres code in static_data.F90, we see the linkage of variable names:
-    !   type(esmf_field), public           :: alvsf_target_grid !< visible black sky albedo
-    !   type(esmf_field), public           :: alvwf_target_grid !< visible white sky albedo
-    !   type(esmf_field), public           :: alnsf_target_grid !< near ir black sky albedo
-    !   type(esmf_field), public           :: alnwf_target_grid !< near ir white sky albedo
+    !   type(esmf_field), public           :: alvsf_target_grid ! visible black sky albedo
+    !   type(esmf_field), public           :: alvwf_target_grid ! visible white sky albedo
+    !   type(esmf_field), public           :: alnsf_target_grid ! near ir black sky albedo
+    !   type(esmf_field), public           :: alnwf_target_grid ! near ir white sky albedo
 
-    real, allocatable  :: alvsf_grid(:,:)              _NULL  ! Visible black sky albedo; netCDF file has monthly values
-    real, allocatable  :: alvwf_grid(:,:)              _NULL  ! Visible white sky albedo; netCDF file has monthly values
-    real, allocatable  :: alnsf_grid(:,:)              _NULL  ! Near IR black sky albedo; netCDF file has monthly values
-    real, allocatable  :: alnwf_grid(:,:)              _NULL  ! Near IR white sky albedo; netCDF file has monthly values
+    real, allocatable  :: alvsf_grid(:,:)              _NULL  !< Visible black sky albedo; netCDF file has monthly values
+    real, allocatable  :: alvwf_grid(:,:)              _NULL  !< Visible white sky albedo; netCDF file has monthly values
+    real, allocatable  :: alnsf_grid(:,:)              _NULL  !< Near IR black sky albedo; netCDF file has monthly values
+    real, allocatable  :: alnwf_grid(:,:)              _NULL  !< Near IR white sky albedo; netCDF file has monthly values
 
   end type mn_surface_grids
 
+  !> ???
   type fv_moving_nest_physics_type
     real, _ALLOCATABLE                  :: ts(:,:)          _NULL   !< 2D skin temperature/SST
     real, _ALLOCATABLE                  :: slmsk(:,:)       _NULL   !< land sea mask -- 0 for ocean/lakes, 1, for land.  Perhaps 2 for sea ice.
@@ -136,7 +142,7 @@ module fv_moving_nest_types_mod
 
     real (kind=kind_phys), _ALLOCATABLE :: zorl (:,:)       _NULL   !< roughness length
     real (kind=kind_phys), _ALLOCATABLE :: zorll (:,:)      _NULL   !< land roughness length
-    !real (kind=kind_phys), _ALLOCATABLE :: zorli (:,:)     _NULL   !< ice surface roughness length ! TODO do we need this?
+    !real (kind=kind_phys), _ALLOCATABLE :: zorli (:,:)     _NULL   < ice surface roughness length ! TODO do we need this?
     real (kind=kind_phys), _ALLOCATABLE :: zorlw (:,:)      _NULL   !< wave surface roughness length
     real (kind=kind_phys), _ALLOCATABLE :: zorlwav (:,:)    _NULL   !< wave surface roughness in cm derived from wave model
 
@@ -146,9 +152,9 @@ module fv_moving_nest_types_mod
     real (kind=kind_phys), _ALLOCATABLE :: emis_wat(:,:)    _NULL   !< surface emissivity over water for LSM
     real (kind=kind_phys), _ALLOCATABLE :: sfalb_lnd_bck(:,:) _NULL !< snow-free albedo over land
 
-    !real (kind=kind_phys), _ALLOCATABLE :: semis(:,:)       _NULL   !< surface lw emissivity in fraction
-    !real (kind=kind_phys), _ALLOCATABLE :: semisbase(:,:)   _NULL   !< background surface emissivity
-    !real (kind=kind_phys), _ALLOCATABLE :: sfalb(:,:)       _NULL   !< mean surface diffused sw albedo
+    !real (kind=kind_phys), _ALLOCATABLE :: semis(:,:)       _NULL   ! surface lw emissivity in fraction
+    !real (kind=kind_phys), _ALLOCATABLE :: semisbase(:,:)   _NULL   ! background surface emissivity
+    !real (kind=kind_phys), _ALLOCATABLE :: sfalb(:,:)       _NULL   ! mean surface diffused sw albedo
 
     real (kind=kind_phys), _ALLOCATABLE :: alvsf(:,:)       _NULL   !< visible black sky albedo
     real (kind=kind_phys), _ALLOCATABLE :: alvwf(:,:)       _NULL   !< visible white sky albedo
@@ -174,7 +180,7 @@ module fv_moving_nest_types_mod
     real (kind=kind_phys), _ALLOCATABLE :: tsfco (:,:)      _NULL   !< surface temperature ocean
     real (kind=kind_phys), _ALLOCATABLE :: tsfcl (:,:)      _NULL   !< surface temperature land
     real (kind=kind_phys), _ALLOCATABLE :: tsfc (:,:)       _NULL   !< surface temperature
-    !real (kind=kind_phys), _ALLOCATABLE :: tsfc_radtime (:,:) _NULL !< surface temperature on radiative timestep
+    !real (kind=kind_phys), _ALLOCATABLE :: tsfc_radtime (:,:) _NULL ! surface temperature on radiative timestep
 
     real (kind=kind_phys), _ALLOCATABLE :: cv  (:,:)        _NULL   !< fraction of convective cloud
     real (kind=kind_phys), _ALLOCATABLE :: cvt (:,:)        _NULL   !< convective cloud top pressure
@@ -200,7 +206,7 @@ module fv_moving_nest_types_mod
     real (kind=kind_phys), _ALLOCATABLE :: xtts (:,:)       _NULL   !< d(xt)/d(ts) for NSSTM
     real (kind=kind_phys), _ALLOCATABLE :: xzts (:,:)       _NULL   !< d(xz)/d(ts) for NSSTM
     real (kind=kind_phys), _ALLOCATABLE :: d_conv (:,:)     _NULL   !< think of free convection layer for NSSTM
-    ! real (kind=kind_phys), _ALLOCATABLE :: ifd (:,:)      _NULL   !< index to start DTM run  for NSSTM   ! TODO Probably can't interpolate an index.
+    ! real (kind=kind_phys), _ALLOCATABLE :: ifd (:,:)      _NULL   ! index to start DTM run  for NSSTM   ! TODO Probably can't interpolate an index.
     !  IFD values are 0 for land, and 1 for oceans/lakes -- reverse of the land sea mask
     !  Land Sea Mask has values of 0 for oceans/lakes, 1 for land, 2 for sea ice
     real (kind=kind_phys), _ALLOCATABLE :: dt_cool (:,:)    _NULL   !< sub-layer cooling amount for NSSTM
@@ -208,43 +214,50 @@ module fv_moving_nest_types_mod
 
   end type fv_moving_nest_physics_type
 
+  !> ???
   type fv_moving_nest_type
-    type(fv_moving_nest_flag_type)    :: mn_flag   ! Mostly namelist variables
-    type(mn_surface_grids)            :: mn_static
-    type(fv_moving_nest_prog_type)    :: mn_prog
-    type(fv_moving_nest_physics_type) :: mn_phys
+    type(fv_moving_nest_flag_type)    :: mn_flag   !< Mostly namelist variables
+    type(mn_surface_grids)            :: mn_static !< ???
+    type(fv_moving_nest_prog_type)    :: mn_prog !< ???
+    type(fv_moving_nest_physics_type) :: mn_phys !< ???
 
-    type(grid_geometry)               :: parent_geo
-    type(grid_geometry)               :: fp_super_tile_geo
+    type(grid_geometry)               :: parent_geo !< ???
+    type(grid_geometry)               :: fp_super_tile_geo !< ???
   end type fv_moving_nest_type
 
   ! Moving Nest Namelist Variables
-  logical, dimension(MAX_NNEST) :: is_moving_nest = .False.
-  character(len=120)            :: surface_dir = "INPUT/moving_nest"
-  integer, dimension(MAX_NNEST) :: terrain_smoother = 4  ! 0 -- all high-resolution data, 1 - static nest smoothing algorithm with blending zone of 5 points, 2 - blending zone of 10 points, 5 - 5 point smoother, 9 - 9 point smoother
-  integer, dimension(MAX_NNEST) :: vortex_tracker = 0 ! 0 - not a moving nest, tracker not needed
-  ! 1 - prescribed nest moving
-  ! 2 - following child domain center
-  ! 3 - tracking Min MSLP
-  ! 6 - simplified version of GFDL tracker, adopted from HWRF's internal vortex tracker.
-  ! 7 - nearly the full storm tracking algorithm from GFDL vortex tracker. The only part that is missing is the part that gives up when the storm dissipates, which is left out intentionally. Adopted from HWRF's internal vortex tracker.
-  integer, dimension(MAX_NNEST) :: ntrack = 1 ! number of dt_atmos steps to call the vortex tracker, tracker time step = ntrack*dt_atmos
-  integer, dimension(MAX_NNEST) :: move_cd_x = 0 ! the number of parent domain grid cells to move in i direction
-  integer, dimension(MAX_NNEST) :: move_cd_y = 0 ! the number of parent domain grid cells to move in j direction
-  ! used to control prescribed nest moving, when vortex_tracker=1
-  ! the move happens every ntrack*dt_atmos seconds
-  ! positive is to move in increasing i and j direction, and
-  ! negative is to move in decreasing i and j direction.
-  ! 0 means no move. The limitation is to move only 1 grid cell at each move.
-  integer, dimension(MAX_NNEST) :: corral_x = 5 ! Minimum parent gridpoints on each side of nest in i direction
-  integer, dimension(MAX_NNEST) :: corral_y = 5 ! Minimum parent gridpoints on each side of nest in j direction
+  logical, dimension(MAX_NNEST) :: is_moving_nest = .False. !< ???
+  character(len=120)            :: surface_dir = "INPUT/moving_nest" !< ???
+  integer, dimension(MAX_NNEST) :: terrain_smoother = 4  !< 0 -- all high-resolution data, 1 - static nest smoothing algorithm with blending zone of 5 points, 2 - blending zone of 10 points, 5 - 5 point smoother, 9 - 9 point smoother
+  integer, dimension(MAX_NNEST) :: vortex_tracker = 0 !< 0 - not a moving nest, tracker not needed
+  !< 1 - prescribed nest moving
+  !< 2 - following child domain center
+  !< 3 - tracking Min MSLP
+  !< 6 - simplified version of GFDL tracker, adopted from HWRF's internal vortex tracker.
+  !< 7 - nearly the full storm tracking algorithm from GFDL vortex tracker. The only part that is missing is the part that gives up when the storm dissipates, which is left out intentionally. Adopted from HWRF's internal vortex tracker.
+  integer, dimension(MAX_NNEST) :: ntrack = 1 !< number of dt_atmos steps to call the vortex tracker, tracker time step = ntrack*dt_atmos
+  integer, dimension(MAX_NNEST) :: move_cd_x = 0 !< the number of parent domain grid cells to move in i direction
+  integer, dimension(MAX_NNEST) :: move_cd_y = 0 !< the number of parent domain grid cells to move in j direction
+  !< used to control prescribed nest moving, when vortex_tracker=1
+  !< the move happens every ntrack*dt_atmos seconds
+  !< positive is to move in increasing i and j direction, and
+  !< negative is to move in decreasing i and j direction.
+  !< 0 means no move. The limitation is to move only 1 grid cell at each move.
+  integer, dimension(MAX_NNEST) :: corral_x = 5 !< Minimum parent gridpoints on each side of nest in i direction
+  integer, dimension(MAX_NNEST) :: corral_y = 5 !< Minimum parent gridpoints on each side of nest in j direction
 
-  integer, dimension(MAX_NNEST) :: outatcf_lun = 600  ! base fortran unit number to write out the partial atcfunix file from the internal tracker
+  integer, dimension(MAX_NNEST) :: outatcf_lun = 600  !< base fortran unit number to write out the partial atcfunix file from the internal tracker
 
   type(fv_moving_nest_type), _ALLOCATABLE, target    :: Moving_nest(:)
 
 contains
 
+  !> ???
+  !>
+  !> @param[in] Atm ???
+  !> @param[in] this_grid ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
   subroutine fv_moving_nest_init(Atm, this_grid)
     type(fv_atmos_type), allocatable, intent(in) :: Atm(:)
     integer, intent(in)                          :: this_grid
@@ -294,6 +307,9 @@ contains
 
   end subroutine fv_moving_nest_init
 
+  !> ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
   subroutine read_namelist_moving_nest_nml
     integer :: f_unit, ios, ierr
     namelist /fv_moving_nest_nml/ surface_dir, is_moving_nest, terrain_smoother, &
@@ -312,6 +328,11 @@ contains
 
   end subroutine read_namelist_moving_nest_nml
 
+  !> ???
+  !>
+  !> @param[in] n ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
   subroutine deallocate_fv_moving_nests(n)
     integer, intent(in)   :: n
 
@@ -323,6 +344,11 @@ contains
     deallocate(Moving_nest)
   end subroutine deallocate_fv_moving_nests
 
+  !> ???
+  !>
+  !> @param[in] n ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
   subroutine deallocate_fv_moving_nest(n)
     integer, intent(in)   :: n
 
@@ -332,6 +358,16 @@ contains
   end subroutine deallocate_fv_moving_nest
 
 
+  !> ???
+  !>
+  !> @param[in] isd ???
+  !> @param[in] ied ???
+  !> @param[in] jsd ???
+  !> @param[in] jed ???
+  !> @param[in] npz ???
+  !> @param[in] mn_prog ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
   subroutine  allocate_fv_moving_nest_prog_type(isd, ied, jsd, jed, npz, mn_prog)
     integer, intent(in)                           :: isd, ied, jsd, jed, npz
     type(fv_moving_nest_prog_type), intent(inout) :: mn_prog
@@ -341,6 +377,11 @@ contains
 
   end subroutine allocate_fv_moving_nest_prog_type
 
+  !> ???
+  !>
+  !> @param[inout] mn_prog ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
   subroutine  deallocate_fv_moving_nest_prog_type(mn_prog)
     type(fv_moving_nest_prog_type), intent(inout) :: mn_prog
 
@@ -348,6 +389,23 @@ contains
 
   end subroutine deallocate_fv_moving_nest_prog_type
 
+  !> ???
+  !>
+  !> @param[in] isd ???
+  !> @param[in] ied ???
+  !> @param[in] jsd ???
+  !> @param[in] jed ???
+  !> @param[in] npz ???
+  !> @param[in] move_physics ???
+  !> @param[in] move_nsst ???
+  !> @param[in] lsoil ???
+  !> @param[in] nmtvr ???
+  !> @param[in] levs ???
+  !> @param[in] ntot2d ???
+  !> @param[in] ntot3d ???
+  !> @param[in] mn_phys ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
   subroutine  allocate_fv_moving_nest_physics_type(isd, ied, jsd, jed, npz, move_physics, move_nsst, lsoil, nmtvr, levs, ntot2d, ntot3d, mn_phys)
     integer, intent(in)                           :: isd, ied, jsd, jed, npz
     logical, intent(in)                           :: move_physics, move_nsst
@@ -527,6 +585,11 @@ contains
   end subroutine allocate_fv_moving_nest_physics_type
 
 
+  !> ???
+  !>
+  !> @param[in] mn_phys ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
   subroutine  deallocate_fv_moving_nest_physics_type(mn_phys)
     type(fv_moving_nest_physics_type), intent(inout) :: mn_phys
 

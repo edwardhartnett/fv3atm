@@ -1,3 +1,7 @@
+!> @file
+!> @brief Subroutines to enable moving nest functionality in FV3 dynamic core.
+!> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
+
 !***********************************************************************
 !*                   GNU General Public License                        *
 !* This file is a part of fvGFS.                                       *
@@ -18,13 +22,9 @@
 !* or see:   http://www.gnu.org/licenses/gpl.html                      *
 !***********************************************************************
 
-!***********************************************************************
-!> @file
-!! @brief   Provides subroutines to enable moving nest functionality in FV3 dynamic core.
-!! @author W. Ramstrom, AOML/HRD   01/15/2021
-!! @email William.Ramstrom@noaa.gov
-! =======================================================================!
-
+!> @brief Subroutines to enable moving nest functionality in FV3 dynamic core.
+!>
+!> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
 module fv_moving_nest_utils_mod
 
   use mpp_mod,           only: FATAL, WARNING, MPP_DEBUG, NOTE, MPP_CLOCK_SYNC,MPP_CLOCK_DETAILED
@@ -102,7 +102,7 @@ module fv_moving_nest_utils_mod
 
 #include <fms_platform.h>
 
-
+  !> ???
   interface alloc_read_data
 #ifdef OVERLOAD_R8
     module procedure alloc_read_data_r4_2d
@@ -110,6 +110,7 @@ module fv_moving_nest_utils_mod
     module procedure alloc_read_data_r8_2d
   end interface alloc_read_data
 
+  !> ???
   interface fill_nest_halos_from_parent
     module procedure fill_nest_halos_from_parent_r4_2d
     module procedure fill_nest_halos_from_parent_r4_3d
@@ -120,6 +121,7 @@ module fv_moving_nest_utils_mod
     module procedure fill_nest_halos_from_parent_r8_4d
   end interface fill_nest_halos_from_parent
 
+  !> ???
   interface alloc_halo_buffer
     module procedure alloc_halo_buffer_r4_2d
     module procedure alloc_halo_buffer_r4_3d
@@ -130,6 +132,7 @@ module fv_moving_nest_utils_mod
     module procedure alloc_halo_buffer_r8_4d
   end interface alloc_halo_buffer
 
+  !> ???
   interface fill_nest_from_buffer
     module procedure fill_nest_from_buffer_r4_2d
     module procedure fill_nest_from_buffer_r4_3d
@@ -140,6 +143,7 @@ module fv_moving_nest_utils_mod
     module procedure fill_nest_from_buffer_r8_4d
   end interface fill_nest_from_buffer
 
+  !> ???
   interface fill_nest_from_buffer_cell_center
     module procedure fill_nest_from_buffer_cell_center_r4_2d
     module procedure fill_nest_from_buffer_cell_center_r4_3d
@@ -150,11 +154,13 @@ module fv_moving_nest_utils_mod
     module procedure fill_nest_from_buffer_cell_center_r8_4d
   end interface fill_nest_from_buffer_cell_center
 
+  !> ???
   interface output_grid_to_nc
     module procedure output_grid_to_nc_2d
     module procedure output_grid_to_nc_3d
   end interface output_grid_to_nc
 
+  !> ???
   interface fill_grid_from_supergrid
     module procedure fill_grid_from_supergrid_r4_3d
     module procedure fill_grid_from_supergrid_r8_3d
@@ -164,20 +170,20 @@ module fv_moving_nest_utils_mod
 
 contains
 
-  ! GEMPAK 5-point smoother
-  !SM5S  Smooth scalar grid using a 5-point smoother
-  !      SM5S ( S ) = .5 * S (i,j) + .125 * ( S (i+1,j) + S (i,j+1) +
-  !                                           S (i-1,j) + S (i,j-1) )
-  ! GEMPAK 9-point smoother
-  !SM9S  Smooth scalar grid using a 9-point smoother
-  !      SM5S ( S ) = .25 * S (i,j) + .125 * ( S (i+1,j) + S (i,j+1) +
-  !                                            S (i-1,j) + S (i,j-1) )
-  !                                 + .0625 * ( S (i+1,j+1) +
-  !                                             S (i+1,j-1) +
-  !                                             S (i-1,j+1) +
-  !                                             S (i-1,j-1) )
-
-
+  !> GEMPAK 5-point smoother.
+  !>
+  !> SM5S  Smooth scalar grid using a 5-point smoother:
+  !> <pre>
+  !>      SM5S ( S ) = .5 * S (i,j) + .125 * ( S (i+1,j) + S (i,j+1) +
+  !>                                           S (i-1,j) + S (i,j-1) )
+  !> </pre>
+  !>
+  !> @param[in] data_var ???
+  !> @param[in] i ???
+  !> @param[in] j ???
+  !> @param[out] val ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine smooth_5_point(data_var, i, j, val)
     real, allocatable, intent(in)               :: data_var(:,:)
     integer                                     :: i,j
@@ -194,6 +200,24 @@ contains
   end subroutine smooth_5_point
 
 
+  !> GEMPAK 9-point smoother.
+  !>
+  !> SM9S  Smooth scalar grid using a 9-point smoother:
+  !> <pre>
+  !>      SM5S ( S ) = .25 * S (i,j) + .125 * ( S (i+1,j) + S (i,j+1) +
+  !>                                            S (i-1,j) + S (i,j-1) )
+  !>                                 + .0625 * ( S (i+1,j+1) +
+  !>                                             S (i+1,j-1) +
+  !>                                             S (i-1,j+1) +
+  !>                                             S (i-1,j-1) )
+  !> </pre>
+  !>
+  !> @param[in] data_var ???
+  !> @param[in] i ???
+  !> @param[in] j ???
+  !> @param[out] val ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine smooth_9_point(data_var, i, j, val)
     real, allocatable, intent(in)               :: data_var(:,:)
     integer                                     :: i,j
@@ -210,9 +234,23 @@ contains
 
   end subroutine smooth_9_point
 
-  ! blend_size is 5 for static nests.  We may increase it for moving nests.
-  !  This is only called for fine PEs.
-  !  Blends a few points into the nest.  Calls zs filtering if enabled in namelist.
+  !> ???
+  !>
+  !> blend_size is 5 for static nests.  We may increase it for moving nests.
+  !>
+  !> This is only called for fine PEs.
+  !>
+  !> Blends a few points into the nest.  Calls zs filtering if enabled in namelist.
+  !>
+  !> @param Atm ???
+  !> @param parent_orog_grid Coarse grid orography.
+  !> @param nest_orog_grid Orography for the full panel of the parent, at high-resolution.
+  !> @param refine ???
+  !> @param halo_size ???
+  !> @param blend_size ???
+  !> @param a_step ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine set_blended_terrain(Atm, parent_orog_grid, nest_orog_grid, refine, halo_size, blend_size, a_step)
     type(fv_atmos_type), intent(inout), target :: Atm
     real, allocatable, intent(in)              :: parent_orog_grid(:,:)   ! Coarse grid orography
@@ -295,6 +333,22 @@ contains
 
   end subroutine set_blended_terrain
 
+  !> ???
+  !>
+  !> blend_size is 5 for static nests.  We may increase it for moving nests.
+  !>
+  !> This is only called for fine PEs.
+  !>
+  !> Blends a few points into the nest.  Calls zs filtering if enabled in namelist.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] fp_orog Orography for the full panel of the parent, at high-resolution.
+  !> @param[in] refine ???
+  !> @param[in] num_points ???
+  !> @param[in] halo_size ???
+  !> @param[in] blend_size ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine set_smooth_nest_terrain(Atm, fp_orog, refine, num_points, halo_size, blend_size)
     type(fv_atmos_type), intent(inout) :: Atm
     real, allocatable, intent(in)      :: fp_orog(:,:)   ! orography for the full panel of the parent, at high-resolution
@@ -366,6 +420,20 @@ contains
   !
   !==================================================================================================
 
+  !> ???
+  !>
+  !> @param[in] var_name ???
+  !> @param[inout] data_var ???
+  !> @param[in] interp_type ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] is_fine_pe ???
+  !> @param[inout] nest_domain ???
+  !> @param[in] position ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_halos_from_parent_r4_2d(var_name, data_var, interp_type, wt, ind, x_refine, y_refine, is_fine_pe, nest_domain, position)
     character(len=*), intent(in)                :: var_name
     real*4, allocatable, intent(inout)          :: data_var(:,:)
@@ -424,6 +492,20 @@ contains
   end subroutine fill_nest_halos_from_parent_r4_2d
 
 
+  !> ???
+  !>
+  !> @param[in] var_name ???
+  !> @param[inout] data_var ???
+  !> @param[in] interp_type ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] is_fine_pe ???
+  !> @param[inout] nest_domain ???
+  !> @param[in] position ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_halos_from_parent_r8_2d(var_name, data_var, interp_type, wt, ind, x_refine, y_refine, is_fine_pe, nest_domain, position)
     character(len=*), intent(in)                :: var_name
     real*8, allocatable, intent(inout)          :: data_var(:,:)
@@ -483,6 +565,20 @@ contains
   end subroutine fill_nest_halos_from_parent_r8_2d
 
 
+  !> ???
+  !>
+  !> @param[in] var_name ???
+  !> @param[inout] data_var ???
+  !> @param[in] interp_type ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] is_fine_pe ???
+  !> @param[inout] nest_domain ???
+  !> @param[in] position ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_halos_from_parent_masked(var_name, data_var, interp_type, wt, ind, x_refine, y_refine, is_fine_pe, nest_domain, position, mask_var, mask_val, default_val)
     character(len=*), intent(in)                :: var_name
     real*8, allocatable, intent(inout)          :: data_var(:,:)
@@ -544,6 +640,21 @@ contains
   end subroutine fill_nest_halos_from_parent_masked
 
 
+  !> ???
+  !>
+  !> @param[in] var_name ???
+  !> @param[inout] data_var ???
+  !> @param[in] interp_type ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] is_fine_pe ???
+  !> @param[inout] nest_domain ???
+  !> @param[in] position ???
+  !> @param[in] nz ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_halos_from_parent_r4_3d(var_name, data_var, interp_type, wt, ind, x_refine, y_refine, is_fine_pe, nest_domain, position, nz)
     character(len=*), intent(in)                :: var_name
     real*4, allocatable, intent(inout)          :: data_var(:,:,:)
@@ -602,6 +713,21 @@ contains
   end subroutine fill_nest_halos_from_parent_r4_3d
 
 
+  !> ???
+  !>
+  !> @param[in] var_name ???
+  !> @param[inout] data_var ???
+  !> @param[in] interp_type ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] is_fine_pe ???
+  !> @param[inout] nest_domain ???
+  !> @param[in] position ???
+  !> @param[in] nz ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_halos_from_parent_r8_3d(var_name, data_var, interp_type, wt, ind, x_refine, y_refine, is_fine_pe, nest_domain, position, nz)
     character(len=*), intent(in)                :: var_name
     real*8, allocatable, intent(inout)          :: data_var(:,:,:)
@@ -660,6 +786,21 @@ contains
   end subroutine fill_nest_halos_from_parent_r8_3d
 
 
+  !> ???
+  !>
+  !> @param[in] var_name ???
+  !> @param[inout] data_var ???
+  !> @param[in] interp_type ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] is_fine_pe ???
+  !> @param[inout] nest_domain ???
+  !> @param[in] position ???
+  !> @param[in] nz ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_halos_from_parent_r4_4d(var_name, data_var, interp_type, wt, ind, x_refine, y_refine, is_fine_pe, nest_domain, position, nz)
     character(len=*), intent(in)                :: var_name
     real*4, allocatable, intent(inout)          :: data_var(:,:,:,:)
@@ -725,6 +866,21 @@ contains
   end subroutine fill_nest_halos_from_parent_r4_4d
 
 
+  !> ???
+  !>
+  !> @param[in] var_name ???
+  !> @param[inout] data_var ???
+  !> @param[in] interp_type ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] is_fine_pe ???
+  !> @param[inout] nest_domain ???
+  !> @param[in] position ???
+  !> @param[in] nz ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_halos_from_parent_r8_4d(var_name, data_var, interp_type, wt, ind, x_refine, y_refine, is_fine_pe, nest_domain, position, nz)
     character(len=*), intent(in)                :: var_name
     real*8, allocatable, intent(inout)          :: data_var(:,:,:,:)
@@ -796,6 +952,16 @@ contains
   !
   !==================================================================================================
 
+  !> ???
+  !>
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nest_domain ???
+  !> @param[in] direction ???
+  !> @param[in] position ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine alloc_halo_buffer_r8_2d(buffer, bbox_fine, bbox_coarse, nest_domain, direction, position)
     real*8, dimension(:,:), allocatable, intent(out) :: buffer
     type(bbox), intent(out)                          :: bbox_fine, bbox_coarse
@@ -816,6 +982,16 @@ contains
   end subroutine alloc_halo_buffer_r8_2d
 
 
+  !> ???
+  !>
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nest_domain ???
+  !> @param[in] direction ???
+  !> @param[in] position ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine alloc_halo_buffer_r4_2d(buffer, bbox_fine, bbox_coarse, nest_domain, direction, position)
     real*4, dimension(:,:), allocatable, intent(out) :: buffer
     type(bbox), intent(out)                          :: bbox_fine, bbox_coarse
@@ -836,6 +1012,17 @@ contains
   end subroutine alloc_halo_buffer_r4_2d
 
 
+  !> ???
+  !>
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nest_domain ???
+  !> @param[in] direction ???
+  !> @param[in] position ???
+  !> @param[in] nz
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine alloc_halo_buffer_r4_3d(buffer, bbox_fine, bbox_coarse, nest_domain, direction, position, nz)
     real*4, dimension(:,:,:), allocatable, intent(out) :: buffer
     type(bbox), intent(out)                            :: bbox_fine, bbox_coarse
@@ -857,6 +1044,17 @@ contains
   end subroutine alloc_halo_buffer_r4_3d
 
 
+  !> ???
+  !>
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nest_domain ???
+  !> @param[in] direction ???
+  !> @param[in] position ???
+  !> @param[in] nz
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine alloc_halo_buffer_r8_3d(buffer, bbox_fine, bbox_coarse, nest_domain, direction, position, nz)
     real*8, dimension(:,:,:), allocatable, intent(out) :: buffer
     type(bbox), intent(out)                            :: bbox_fine, bbox_coarse
@@ -877,6 +1075,18 @@ contains
   end subroutine alloc_halo_buffer_r8_3d
 
 
+  !> ???
+  !>
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nest_domain ???
+  !> @param[in] direction ???
+  !> @param[in] position ???
+  !> @param[in] nz ???
+  !> @param[in] n4d ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine alloc_halo_buffer_r4_4d(buffer, bbox_fine, bbox_coarse, nest_domain, direction, position, nz, n4d)
     real*4, dimension(:,:,:,:), allocatable, intent(out) :: buffer
     type(bbox), intent(out)                              :: bbox_fine, bbox_coarse
@@ -897,6 +1107,18 @@ contains
   end subroutine alloc_halo_buffer_r4_4d
 
 
+  !> ???
+  !>
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nest_domain ???
+  !> @param[in] direction ???
+  !> @param[in] position ???
+  !> @param[in] nz ???
+  !> @param[in] n4d ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine alloc_halo_buffer_r8_4d(buffer, bbox_fine, bbox_coarse, nest_domain, direction, position, nz, n4d)
     real*8, dimension(:,:,:,:), allocatable, intent(out) :: buffer
     type(bbox), intent(out)                              :: bbox_fine, bbox_coarse
@@ -923,10 +1145,22 @@ contains
   !
   !==================================================================================================
 
-  ! Load the full panel nest latlons from netCDF file
-  ! character(*), parameter      :: nc_filename = '/scratch2/NAGAPE/aoml-hafs1/William.Ramstrom/static_grids/C384_grid.tile6.nc'
-  ! Read in the lat/lon in degrees, convert to radians
-
+  !> Load the full panel nest latlons from netCDF file.
+  !>
+  !> Read in the lat/lon in degrees, convert to radians.
+  !>
+  !> @param[in] nc_filename /scratch2/NAGAPE/aoml-hafs1/William.Ramstrom/static_grids/C384_grid.tile6.nc
+  !> @param[in] nxp ???
+  !> @param[in] nyp ???
+  !> @param[in] refine ???
+  !> @param[in] pelist ???
+  !> @param[in] fp_tile_geo ???
+  !> @param[in] fp_istart_fine ???
+  !> @param[in] fp_iend_fine ???
+  !> @param[in] fp_jstart_fine ???
+  !> @param[in] fp_jend_fine ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine load_nest_latlons_from_nc(nc_filename, nxp, nyp, refine, pelist, &
       fp_tile_geo, fp_istart_fine, fp_iend_fine, fp_jstart_fine, fp_jend_fine)
     implicit none
@@ -1029,6 +1263,17 @@ contains
   end subroutine load_nest_latlons_from_nc
 
 #ifdef OVERLOAD_R8
+  !> ???
+  !>
+  !> @param[in] nc_filename ???
+  !> @param[in] var_name ???
+  !> @param[in] x_size ???
+  !> @param[in] y_size ???
+  !> @param[in] data_array ???
+  !> @param[in] pes ???
+  !> @param[in] time ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine alloc_read_data_r4_2d(nc_filename, var_name, x_size, y_size, data_array, pes, time)
     character(len=*), intent(in)           :: nc_filename, var_name
     integer, intent(in)                    :: x_size, y_size
@@ -1069,6 +1314,17 @@ contains
   end subroutine alloc_read_data_r4_2d
 #endif
 
+  !> ???
+  !>
+  !> @param[in] nc_filename ???
+  !> @param[in] var_name ???
+  !> @param[in] x_size ???
+  !> @param[in] y_size ???
+  !> @param[in] data_array ???
+  !> @param[in] pes ???
+  !> @param[in] time ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine alloc_read_data_r8_2d(nc_filename, var_name, x_size, y_size, data_array, pes, time)
     character(len=*), intent(in)           :: nc_filename, var_name
     integer, intent(in)                    :: x_size, y_size
@@ -1115,6 +1371,21 @@ contains
   !
   !==================================================================================================
 
+  !> ???
+  !>
+  !> @param[in] flag ???
+  !> @param[in] istart ???
+  !> @param[in] jstart ???
+  !> @param[in] jend ???
+  !> @param[in] k ???
+  !> @param[in] grid ???
+  !> @param[in] file_str ???
+  !> @param[in] var_name ???
+  !> @param[in] time_step ???
+  !> @param[in] dom ???
+  !> @param[in] pos ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine output_grid_to_nc_3d(flag, istart, iend, jstart, jend, k, grid, file_str, var_name, time_step, dom, pos)
     implicit none
 
@@ -1194,6 +1465,21 @@ contains
   end subroutine output_grid_to_nc_3d
 
 
+  !> ???
+  !>
+  !> @param[in] flag ???
+  !> @param[in] istart ???
+  !> @param[in] jstart ???
+  !> @param[in] jend ???
+  !> @param[in] k ???
+  !> @param[in] grid ???
+  !> @param[in] file_str ???
+  !> @param[in] var_name ???
+  !> @param[in] time_step ???
+  !> @param[in] dom ???
+  !> @param[in] pos ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine output_grid_to_nc_2d(flag, istart, iend, jstart, jend, grid, file_str, var_name, time_step, dom, pos)
     implicit none
 
@@ -1256,6 +1542,17 @@ contains
   !
   !==================================================================================================
 
+  !> ???
+  !>
+  !> @param[inout] in_grid ???
+  !> @param[in] stagger_type ???
+  !> @param[in] fp_super_tile_geo ???
+  !> @param[in] ioffset ???
+  !> @param[in] joffset ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_grid_from_supergrid_r4_3d(in_grid, stagger_type, fp_super_tile_geo, ioffset, joffset, x_refine, y_refine)
     implicit none
     real*4, allocatable, intent(inout)  :: in_grid(:,:,:)
@@ -1322,6 +1619,17 @@ contains
   end subroutine fill_grid_from_supergrid_r4_3d
 
 
+  !> ???
+  !>
+  !> @param[inout] in_grid ???
+  !> @param[in] stagger_type ???
+  !> @param[in] fp_super_tile_geo ???
+  !> @param[in] ioffset ???
+  !> @param[in] joffset ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_grid_from_supergrid_r8_3d(in_grid, stagger_type, fp_super_tile_geo, ioffset, joffset, x_refine, y_refine)
     implicit none
     real*8, allocatable, intent(inout)  :: in_grid(:,:,:)
@@ -1388,6 +1696,17 @@ contains
   end subroutine fill_grid_from_supergrid_r8_3d
 
 
+  !> ???
+  !>
+  !> @param[inout] in_grid ???
+  !> @param[in] stagger_type ???
+  !> @param[in] fp_super_tile_geo ???
+  !> @param[in] ioffset ???
+  !> @param[in] joffset ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_grid_from_supergrid_r8_4d(in_grid, stagger_type, fp_super_tile_geo, ioffset, joffset, x_refine, y_refine)
     implicit none
     real*8, allocatable, intent(inout)  :: in_grid(:,:,:,:)
@@ -1453,10 +1772,22 @@ contains
 
   end subroutine fill_grid_from_supergrid_r8_4d
 
-
-  !>@brief  This subroutine fills the nest halo data from the coarse grid data by downscaling.
-  !>@details  Applicable to any interpolation type
-
+  !> This subroutine fills the nest halo data from the coarse grid data by downscaling.
+  !>
+  !> Applicable to any interpolation type.
+  !>
+  !> @param[in] interp_type ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_r4_2d(interp_type, x, buffer, bbox_fine, bbox_coarse, dir, x_refine, y_refine, wt, ind)
     implicit none
 
@@ -1487,10 +1818,22 @@ contains
 
   end subroutine fill_nest_from_buffer_r4_2d
 
-
-  !>@brief  This subroutine fills the nest halo data from the coarse grid data by downscaling.
-  !>@details  Applicable to any interpolation type
-
+  !> This subroutine fills the nest halo data from the coarse grid data by downscaling.
+  !>
+  !> Applicable to any interpolation type.
+  !>
+  !> @param[in] interp_type ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_r8_2d(interp_type, x, buffer, bbox_fine, bbox_coarse, dir, x_refine, y_refine, wt, ind)
     implicit none
 
@@ -1522,6 +1865,23 @@ contains
   end subroutine fill_nest_from_buffer_r8_2d
 
 
+  !> ???
+  !>
+  !> @param[in] interp_type ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] mask_var ???
+  !> @param[in] mask_val ???
+  !> @param[in] default_val ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_masked(interp_type, x, buffer, bbox_fine, bbox_coarse, dir, x_refine, y_refine, wt, ind, mask_var, mask_val, default_val)
     implicit none
 
@@ -1559,6 +1919,21 @@ contains
 
 
 
+  !> ???
+  !>
+  !> @param[in] interp_type ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nz ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_r4_3d(interp_type, x, buffer, bbox_fine, bbox_coarse, nz, dir, x_refine, y_refine, wt, ind)
     implicit none
 
@@ -1591,6 +1966,21 @@ contains
   end subroutine fill_nest_from_buffer_r4_3d
 
 
+  !> ???
+  !>
+  !> @param[in] interp_type ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nz ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_r8_3d(interp_type, x, buffer, bbox_fine, bbox_coarse, nz, dir, x_refine, y_refine, wt, ind)
     implicit none
 
@@ -1623,9 +2013,23 @@ contains
   end subroutine fill_nest_from_buffer_r8_3d
 
 
-  !>@brief  This subroutine fills the nest halo data from the coarse grid data by downscaling.
-  !>@details  Applicable to any interpolation type
-
+  !> This subroutine fills the nest halo data from the coarse grid data by downscaling.
+  !>
+  !> Applicable to any interpolation type.
+  !>
+  !> @param[in] interp_type ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nz ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_r4_4d(interp_type, x, buffer, bbox_fine, bbox_coarse, nz, dir, x_refine, y_refine, wt, ind)
     implicit none
 
@@ -1658,6 +2062,21 @@ contains
   end subroutine fill_nest_from_buffer_r4_4d
 
 
+  !> ???
+  !>
+  !> @param[in] interp_type ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nz ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_r8_4d(interp_type, x, buffer, bbox_fine, bbox_coarse, nz, dir, x_refine, y_refine, wt, ind)
     implicit none
 
@@ -1690,9 +2109,28 @@ contains
   end subroutine fill_nest_from_buffer_r8_4d
 
 
-  !>@brief  This subroutine fills the nest halo data from the coarse grid data by downscaling.  It can accommodate all grid staggers, using the stagger variable.  [The routine needs to be renamed since "_from_cell_center" has become incorrect.)
-  !>@details  Applicable to any interpolation type
-
+  !> This subroutine fills the nest halo data from the coarse grid
+  !> data by downscaling.
+  !>
+  !> It can accommodate all grid staggers, using
+  !> the stagger variable.  (The routine needs to be renamed since
+  !> "_from_cell_center" has become incorrect.)
+  !>
+  !> Applicable to any interpolation type.
+  !>
+  !> @param[in] interp_type ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nz ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_cell_center_r4_2d(stagger, x, buffer, bbox_fine, bbox_coarse, dir, x_refine, y_refine, wt, ind)
     implicit none
     character ( len = 1 ), intent(in)             :: stagger
@@ -1744,6 +2182,20 @@ contains
   end subroutine fill_nest_from_buffer_cell_center_r4_2d
 
 
+  !> ???
+  !>
+  !> @param[in] stagger ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_cell_center_r8_2d(stagger, x, buffer, bbox_fine, bbox_coarse, dir, x_refine, y_refine, wt, ind)
     implicit none
     character ( len = 1 ), intent(in)             :: stagger
@@ -1795,6 +2247,23 @@ contains
   end subroutine fill_nest_from_buffer_cell_center_r8_2d
 
 
+  !> ???
+  !>
+  !> @param[in] stagger ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] mask_var ???
+  !> @param[in] mask_val ???
+  !> @param[in] default_val ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_cell_center_masked(stagger, x, buffer, bbox_fine, bbox_coarse, dir, x_refine, y_refine, wt, ind, mask_var, mask_val, default_val)
     implicit none
     character ( len = 1 ), intent(in)             :: stagger
@@ -1865,6 +2334,23 @@ contains
   end subroutine fill_nest_from_buffer_cell_center_masked
 
 
+  !> ???
+  !>
+  !> @param[in] stagger ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] mask_var ???
+  !> @param[in] mask_val ???
+  !> @param[in] default_val ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_cell_center_r4_3d(stagger, x, buffer, bbox_fine, bbox_coarse, nz, dir, x_refine, y_refine, wt, ind)
     implicit none
     character ( len = 1 ), intent(in)             :: stagger
@@ -1917,6 +2403,20 @@ contains
 
   end subroutine fill_nest_from_buffer_cell_center_r4_3d
 
+  !> ???
+  !>
+  !> @param[in] stagger ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_cell_center_r8_3d(stagger, x, buffer, bbox_fine, bbox_coarse, nz, dir, x_refine, y_refine, wt, ind)
     implicit none
     character ( len = 1 ), intent(in)             :: stagger
@@ -1969,6 +2469,23 @@ contains
   end subroutine fill_nest_from_buffer_cell_center_r8_3d
 
 
+  !> ???
+  !>
+  !> @param[in] stagger ???
+  !> @param[in] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] mask_var ???
+  !> @param[in] mask_val ???
+  !> @param[in] default_val ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_cell_center_r4_4d(stagger, x, buffer, bbox_fine, bbox_coarse, nz, dir, x_refine, y_refine, wt, ind)
     implicit none
     character ( len = 1 ), intent(in)             :: stagger
@@ -2019,6 +2536,23 @@ contains
   end subroutine fill_nest_from_buffer_cell_center_r4_4d
 
 
+  !> ???
+  !>
+  !> @param[in] stagger ???
+  !> @param[inout] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] dir ???
+  !> @param[in] x_refine ???
+  !> @param[in] y_refine ???
+  !> @param[in] wt ???
+  !> @param[in] ind ???
+  !> @param[in] mask_var ???
+  !> @param[in] mask_val ???
+  !> @param[in] default_val ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_cell_center_r8_4d(stagger, x, buffer, bbox_fine, bbox_coarse, nz, dir, x_refine, y_refine, wt, ind)
     implicit none
     character ( len = 1 ), intent(in)             :: stagger
@@ -2069,6 +2603,17 @@ contains
   end subroutine fill_nest_from_buffer_cell_center_r8_4d
 
 
+  !> ???
+  !>
+  !> @param[inout] x ???
+  !> @param[in] buffer ???
+  !> @param[in] bbox_fine ???
+  !> @param[in] bbox_coarse ???
+  !> @param[in] nz ???
+  !> @param[in] dir ???
+  !> @param[in] wt ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_nest_from_buffer_nearest_neighbor(x, buffer, bbox_fine, bbox_coarse, nz, dir, wt)
     implicit none
 
@@ -2132,6 +2677,12 @@ contains
   end subroutine fill_nest_from_buffer_nearest_neighbor
 
 
+  !> ???
+  !>
+  !> @param[inout] atm_wt ???
+  !> @param[in] new_wt ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 01/15/2021
   subroutine fill_weight_grid(atm_wt, new_wt)
     real, allocatable, intent(inout) :: atm_wt(:,:,:)
     real, allocatable, intent(in) :: new_wt(:,:,:)

@@ -1,3 +1,8 @@
+!> @file
+!> @brief Internal GFDL/NCEP vortex tracker adapted from HWRF internal
+!> vortex tracker, mainly based on the GFDL vortex tracker.
+!> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022
+
 !***********************************************************************
 !*                   GNU General Public License                        *
 !* This file is a part of fvGFS.                                       *
@@ -18,10 +23,9 @@
 !* or see:   http://www.gnu.org/licenses/gpl.html                      *
 !***********************************************************************
 
-!>@brief The module 'fv_tracker' contains the internal GFDL/NCEP vortex tracker
-!adapted from HWRF internal vortex tracker, mainly based on the GFDL vortex
-!tracker.
-
+!> @brief Internal GFDL/NCEP vortex tracker adapted from HWRF internal
+!> vortex tracker, mainly based on the GFDL vortex tracker.
+!> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date  03/24/2022
 module fv_tracker_mod
 
 #include <fms_platform.h>
@@ -60,26 +64,27 @@ module fv_tracker_mod
   public :: check_is_moving_nest, execute_tracker
   public :: Tracker
 
-  integer, parameter :: maxtp=11 ! number of tracker parameters
+  integer, parameter :: maxtp=11 !< number of tracker parameters
 
-  real, parameter :: invE=0.36787944117 ! 1/e
-  real, parameter :: searchrad_6=250.0 ! km - ignore data more than this far from domain center
-  real, parameter :: searchrad_7=200.0 ! km - ignore data more than this far from domain center
-  real, parameter :: uverrmax=225.0 ! For use in get_uv_guess
-  real, parameter :: ecircum=40030.2 ! Earth's circumference (km) using erad=6371.e3
-  real, parameter :: rads_vmag=120.0 ! max search radius for wind minimum
-  real, parameter :: err_reg_init=300.0 ! max err at initial time (km)
-  real, parameter :: err_reg_max=225.0 ! max err at other times (km)
+  real, parameter :: invE=0.36787944117 !< 1/e
+  real, parameter :: searchrad_6=250.0 !< km - ignore data more than this far from domain center
+  real, parameter :: searchrad_7=200.0 !< km - ignore data more than this far from domain center
+  real, parameter :: uverrmax=225.0 !< For use in get_uv_guess
+  real, parameter :: ecircum=40030.2 !< Earth's circumference (km) using erad=6371.e3
+  real, parameter :: rads_vmag=120.0 !< max search radius for wind minimum
+  real, parameter :: err_reg_init=300.0 !< max err at initial time (km)
+  real, parameter :: err_reg_max=225.0 !< max err at other times (km)
 
-  real, parameter :: errpmax=485.0 ! max stddev of track parameters
-  real, parameter :: errpgro=1.25 ! stddev multiplier
+  real, parameter :: errpmax=485.0 !< max stddev of track parameters
+  real, parameter :: errpgro=1.25 !< stddev multiplier
 
-  real, parameter :: max_wind_search_radius=searchrad_7 ! max radius for vmax search
-  real, parameter :: min_mlsp_search_radius=searchrad_7 ! max radius for pmin search
+  real, parameter :: max_wind_search_radius=searchrad_7 !< max radius for vmax search
+  real, parameter :: min_mlsp_search_radius=searchrad_7 !< max radius for pmin search
 
   real, parameter :: km2nmi=0.539957, kn2mps=0.514444, mps2kn=1./kn2mps
 
 
+  !> ???
   type fv_tracker_type
     ! For internal vortex tracker
     real, _ALLOCATABLE :: vort850(:,:)  _NULL  !< relative vorticity at 850 mb
@@ -128,14 +133,18 @@ module fv_tracker_mod
     logical :: tracker_gave_up = .false. !< True = inline tracker gave up on tracking the storm
   end type fv_tracker_type
 
-  type(fv_tracker_type), _ALLOCATABLE, target :: Tracker(:)
-  integer :: n = 2 ! TODO allow to vary for multiple nests
-  integer :: id_fv_tracker
+  type(fv_tracker_type), _ALLOCATABLE, target :: Tracker(:) !< ???
+  integer :: n = 2 !< TODO allow to vary for multiple nests
+  integer :: id_fv_tracker !< ???
 
 contains
 
+  !> Initialize tracker variables in the Atm structure.
+  !>
+  !> @param[in] length ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine fv_tracker_init(length)
-    ! Initialize tracker variables in the Atm structure.
     implicit none
     integer, intent(in)     :: length
 
@@ -173,6 +182,15 @@ contains
 
   end subroutine fv_tracker_init
 
+  !> ???
+  !>
+  !> @param[in] i ???
+  !> @param[in] is ???
+  !> @param[in] ie ???
+  !> @param[in] js ???
+  !> @param[in] je ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine allocate_tracker(i, is, ie, js, je)
     integer, intent(in) :: i, is, ie, js, je
     ! Allocate internal vortex tracker arrays
@@ -199,6 +217,11 @@ contains
     allocate ( Tracker(i)%tracker_fixes(is:ie,js:je) )
   end subroutine allocate_tracker
 
+  !> ???
+  !>
+  !> @param[in] nn ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine deallocate_tracker(nn)
     integer, intent(in) :: nn
 
@@ -228,6 +251,15 @@ contains
 
   end subroutine deallocate_tracker
 
+  !> ???
+  !>
+  !> @param[in] Atm ???
+  !> @param[in] mygrid ???
+  !> @param[in] ngrids ???
+  !> @param[in] is_moving_nest ???
+  !> @param[in] moving_nest_parent ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine check_is_moving_nest(Atm, mygrid, ngrids, is_moving_nest, moving_nest_parent)
     type(fv_atmos_type), intent(inout) :: Atm(:)
     integer, intent(in) :: mygrid, ngrids
@@ -253,6 +285,14 @@ contains
   end subroutine check_is_moving_nest
 
 
+  !> ???
+  !>
+  !> @param[in] Atm ???
+  !> @param[in] mygrid ???
+  !> @param[in] Time ???
+  !> @param[in] Time_step ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine execute_tracker(Atm, mygrid, Time, Time_step)
     implicit none
     type(fv_atmos_type), intent(inout) :: Atm(:)
@@ -292,11 +332,18 @@ contains
 
   end subroutine execute_tracker
 
+  !> Top-level entry to the internal GFDL/NCEP vortex tracker.
+  !>
+  !> Finds the center of the storm in the specified Atm and updates
+  !> the Atm variables. Will do nothing and return immediately if
+  !> tracker%tracker_gave_up=.true.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] n ???
+  !> @param[in] Time ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine fv_tracker_center(Atm, n, Time)
-    ! Top-level entry to the internal GFDL/NCEP vortex tracker. Finds the center of
-    ! the storm in the specified Atm and updates the Atm variables.
-    ! Will do nothing and return immediately if
-    ! tracker%tracker_gave_up=.true.
     implicit none
     type(fv_atmos_type), intent(inout) :: Atm
     integer, intent(in)                :: n
@@ -320,6 +367,13 @@ contains
 
   end subroutine fv_tracker_center
 
+  !> ???
+  !>
+  !> @param[in] Atm ???
+  !> @param[in] zvir ???
+  !> @param[in] Time ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine fv_diag_tracker(Atm, zvir, Time)
 
     type(fv_atmos_type), intent(inout) :: Atm(:)
@@ -437,13 +491,38 @@ contains
 
   end subroutine fv_diag_tracker
 
+  !> This is the main entry point to the tracker.
+  !>
+  !> It is most similar to the function "tracker" in the GFDL/NCEP
+  !> vortex tracker.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[inout] tracker ???
+  !> @param[in] Time ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine ntc_impl(Atm,tracker,Time, &
       ids,ide,jds,jde,kds,kde, &
       ims,ime,jms,jme,kms,kme, &
       ips,ipe,jps,jpe,kps,kpe)
-    ! This is the main entry point to the tracker.  It is most similar
-    ! to the function "tracker" in the GFDL/NCEP vortex tracker.
-
     implicit none
     type(fv_atmos_type), intent(inout) :: Atm
     type(fv_tracker_type), intent(inout) :: tracker
@@ -731,6 +810,29 @@ contains
 
   end subroutine ntc_impl
 
+  !> ???
+  !>
+  !> @param[in] Atm ???
+  !> @param[out] ids ???
+  !> @param[out] ide ???
+  !> @param[out] jds ???
+  !> @param[out] jde ???
+  !> @param[out] kds ???
+  !> @param[out] kde ???
+  !> @param[out] ims ???
+  !> @param[out] ime ???
+  !> @param[out] jms ???
+  !> @param[out] jme ???
+  !> @param[out] kms ???
+  !> @param[out] kme ???
+  !> @param[out] ips ???
+  !> @param[out] ipe ???
+  !> @param[out] jps ???
+  !> @param[out] jpe ???
+  !> @param[out] kps ???
+  !> @param[out] kpe ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_ijk_from_domain(Atm,  &
       ids, ide, jds, jde, kds, kde, &
       ims, ime, jms, jme, kms, kme, &
@@ -757,13 +859,42 @@ contains
     kpe = Atm%npz
   end subroutine get_ijk_from_domain
 
+  !> Finds the nearest point in the domain to the specified lon,lat
+  !> location.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[out] iloc ???
+  !> @param[out] jloc ???
+  !> @param[out] ierr ???
+  !> @param[in] lon ???
+  !> @param[in] lat ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
+  !> @param[in] lonnear ???
+  !> @param[in] latnear ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_nearest_lonlat(Atm,iloc,jloc,ierr,lon,lat, &
       ids,ide, jds,jde, kds,kde, &
       ims,ime, jms,jme, kms,kme, &
       ips,ipe, jps,jpe, kps,kpe, &
       lonnear, latnear)
-    ! Finds the nearest point in the domain to the specified lon,lat
-    ! location.
     implicit none
     type(fv_atmos_type), intent(inout) :: Atm
     integer, intent(in) :: ids,ide,jds,jde,kds,kde
@@ -807,6 +938,30 @@ contains
     if(present(lonnear)) lonnear=lonmin
   end subroutine get_nearest_lonlat
 
+  !> ???
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] Time ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine output_partial_atcfunix(Atm,Time, &
       ids,ide,jds,jde,kds,kde, &
       ims,ime,jms,jme,kms,kme, &
@@ -843,6 +998,37 @@ contains
     end if
   end subroutine output_partial_atcfunix
 
+  !> ???
+  !>
+  !> @param[inout] Atm ???
+  !> @param[inout] min_mslp ???
+  !> @param[inout] max_wind ???
+  !> @param[inout] rmw ???
+  !> @param[inout] max_wind_search_radius ???
+  !> @param[inout] min_mlsp_search_radius ???
+  !> @param[inout] clon ???
+  !> @param[inout] clat ???
+  !> @param[in] Time ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] its ???
+  !> @param[in] ite ???
+  !> @param[in] jts ???
+  !> @param[in] jte ???
+  !> @param[in] kts ???
+  !> @param[in] kte ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_wind_pres_intensity(Atm, &
       min_mslp,max_wind,rmw, &
       max_wind_search_radius, min_mlsp_search_radius, clon,clat, &
@@ -935,6 +1121,54 @@ contains
 
   end subroutine get_wind_pres_intensity
 
+  !> This is the same as "fixcenter" in gettrk_main.
+  !>
+
+  !> This subroutine loops through the different parameters for the
+  !> input storm number (ist) and calculates the center position of
+  !> the storm by taking an average of the center positions obtained
+  !> for those parameters. First we check to see which parameters are
+  !> within a max error range (errmax), and we discard those that are
+  !> not within that range.  Of the remaining parms, we get a mean
+  !> position, and then we re-calculate the position by giving more
+  !> weight to those estimates that are closer to this mean
+  !> first-guess position estimate.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] icen array of center gridpoint locations.
+  !> @param[in] jcen array of center gridpoint locations.
+  !> @param[in] calcperm array of center validity flags (true = center is valid).
+  !> @param[in] loncen center geographic locations.
+  !> @param[in] latcen center geographic locations.
+  !> @param[in] iguess first guess gridpoint location.
+  !> @param[in] jguess first guess gridpoint location.
+  !> @param[in] longuess first guess geographic location.
+  !> @param[in] latguess first guess geographic location.
+  !> @param[out] ifinal final center gridpoint location.
+  !> @param[out] jfinal final center gridpoint location.
+  !> @param[out] lonfinal final center geographic location.
+  !> @param[out] latfinal final center geographic location.
+  !> @param[in]  north_hemi true = northern hemisphere, false=south
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine fixcenter(Atm,icen,jcen,calcparm,loncen,latcen, &
       iguess,jguess,longuess,latguess, &
       ifinal,jfinal,lonfinal,latfinal, &
@@ -942,34 +1176,6 @@ contains
       ids,ide, jds,jde, kds,kde, &
       ims,ime, jms,jme, kms,kme, &
       ips,ipe, jps,jpe, kps,kpe)
-    ! This is the same as "fixcenter" in gettrk_main.  Original comment:
-    !
-    ! ABSTRACT: This subroutine loops through the different parameters
-    !           for the input storm number (ist) and calculates the
-    !           center position of the storm by taking an average of
-    !           the center positions obtained for those parameters.
-    !           First we check to see which parameters are within a
-    !           max error range (errmax), and we discard those that are
-    !           not within that range.  Of the remaining parms, we get
-    !           a mean position, and then we re-calculate the position
-    !           by giving more weight to those estimates that are closer
-    !           to this mean first-guess position estimate.
-
-    ! Arguments: Input:
-    ! grid - the grid being processed
-    ! icen,jcen - arrays of center gridpoint locations
-    ! calcperm - array of center validity flags (true = center is valid)
-    ! loncen,latcen - center geographic locations
-    ! iguess,jguess - first guess gridpoint location
-    ! longuess,latguess - first guess geographic location
-
-    ! Arguments: Output:
-    ! ifinal,jfinal - final center gridpoint location
-    ! lonfinal,latfinal - final center geographic location
-
-    ! Arguments: Optional input:
-    ! north_hemi - true = northern hemisphere, false=south
-
     implicit none
     integer, intent(in) :: &
         ids,ide, jds,jde, kds,kde, &
@@ -1234,32 +1440,55 @@ contains
 
   end subroutine fixcenter
 
+  !> This is a rewrite of the gettrk_main.f get_uv_guess.
+  !>
+  !> The purpose of this subroutine is to get a modified first guess
+  !> lat/lon position before searching for the minimum in the wind
+  !> field.  The reason for doing this is to better refine the guess
+  !> and avoid picking up a wind wind minimum far away from the
+  !> center.  So, use the first guess position (and give it strong
+  !> weighting), and then also use the fix positions for the current
+  !> time (give the vorticity centers stronger weighting as well), and
+  !> then take the average of these positions.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] icen array of center gridpoint locations.
+  !> @param[in] jcen array of center gridpoint locations.
+  !> @param[in] loncen center geographic locations.
+  !> @param[in] latcen center geographic locations.
+  !> @param[in] calcperm array of center validity flags (true = center is valid).
+  !> @param[in] iguess first guess gridpoint location.
+  !> @param[in] jguess first guess gridpoint location.
+  !> @param[in] longuess first guess geographic location.
+  !> @param[in] latguess first guess geographic location.
+  !> @param[out] ifinal final center gridpoint location.
+  !> @param[inout] iout uv guess center location.
+  !> @param[inout] jout uv guess center location.
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_uv_guess(Atm,icen,jcen,loncen,latcen,calcparm, &
       iguess,jguess,longuess,latguess,iout,jout, &
       ids,ide,jds,jde,kds,kde, &
       ims,ime,jms,jme,kms,kme, &
       its,ite,jts,jte,kts,kte)
-    ! This is a rewrite of the gettrk_main.f get_uv_guess.  Original comment:
-    ! ABSTRACT: The purpose of this subroutine is to get a modified
-    !           first guess lat/lon position before searching for the
-    !           minimum in the wind field.  The reason for doing this is
-    !           to better refine the guess and avoid picking up a wind
-    !           wind minimum far away from the center.  So, use the
-    !           first guess position (and give it strong weighting), and
-    !           then also use the  fix positions for the current time
-    !           (give the vorticity centers stronger weighting as well),
-    !           and then take the average of these positions.
-
-    ! Arguments: Input:
-    !  grid - grid being searched
-    !  icen,jcen - tracker parameter center gridpoints
-    !  loncen,latcen - tracker parameter centers' geographic locations
-    !  calcparm - is each center valid?
-    !  iguess, jguess - first guess gridpoint location
-    !  longuess,latguess - first guess geographic location
-
-    ! Arguments: Output:
-    !  iout,jout - uv guess center location
 
     implicit none
     type(fv_atmos_type), intent(inout) :: Atm
@@ -1308,6 +1537,40 @@ contains
     jout=nint(real(jsum)/real(ict))
   end subroutine get_uv_guess
 
+  !> ???
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] orig ???
+  !> @param[inout] iout uv guess center location.
+  !> @param[inout] jout uv guess center location. 
+  !> @param[inout] rout ???
+  !> @param[inout] calcperm array of center validity flags (true = center is valid).
+  !> @param[inout] lonout ???
+  !> @param[inout] latout ???
+  !> @param[in] dxdymean ???
+  !> @param[in] cparm ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
+  !> @param[in] iuvguess ???
+  !> @param[in] juvguess ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_uv_center(Atm,orig, &
       iout,jout,rout,calcparm,lonout,latout, &
       dxdymean,cparm, &
@@ -1384,6 +1647,66 @@ contains
     endif resultif
   end subroutine get_uv_center
 
+  !> Finds the minimum or maximum value of the smoothed version
+  !> (smooth) of the given field (orig).
+  !>
+  !> If a center cannot be found, sets calcparm=.false., otherwise
+  !> places the longitude in lonout and latitude in latout, gridpoint
+  !> location in (iout,jout)
+  !>
+  !> This routine replaces the gettrk_main functions find_maxmin and
+  !> get_uv_center.
+  !>  
+  !> Note: Currently, the smoothing is not yet implemented.
+  !>
+  !>  
+  !> - grid - grid to search
+  !> - orig - field to search
+  !> - smooth - smoothed version of the field (smoothed via relax4e)
+  !> - iout,jout - center location
+  !> - rout - center value (min MSLP, min wind, max or min zeta, etc.)
+  !> - calcparm - true if a center was found, false otherwise
+  !> - lonout,latout - geographic location of the center
+  !> - dxdymean - mean grid spacing of the entire domain
+  !> - cparm - which type of field: zeta, hgt, wind, slp
+  !> - srsq - square of the maximum radius from domain center to search
+  !> - ids, ..., kpe - grid, memory and patch dimensions
+  !>
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] orig field to search.
+  !> @param[in] srsq square of the maximum radius from domain center to search.
+  !> @param[inout] iout uv guess center location.
+  !> @param[inout] jout uv guess center location. 
+  !> @param[inout] rout center value (min MSLP, min wind, max or min zeta, etc.).
+  !> @param[inout] calcperm array of center validity flags (true = center is valid).
+  !> @param[inout] lonout geographic location of the center.
+  !> @param[inout] latout geographic location of the center.
+  !> @param[in] dxdymean mean grid spacing of the entire domain.
+  !> @param[in] cparm which type of field: zeta, hgt, wind, slp?
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
+  !> @param[in] iuvguess first guess center location to restrict search to a subset of the grid.
+  !> @param[in] juvguess  first guess center location to restrict search to a subset of the grid.
+  !> @param[in] north_hemi we're in the northern hemisphere: true or false?
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine find_center(Atm,orig,srsq, &
       iout,jout,rout,calcparm,lonout,latout, &
       dxdymean,cparm, &
@@ -1391,36 +1714,6 @@ contains
       ims,ime,jms,jme,kms,kme, &
       ips,ipe,jps,jpe,kps,kpe, &
       iuvguess,juvguess,north_hemi)
-    ! This routine replaces the gettrk_main functions find_maxmin and
-    ! get_uv_center.
-
-    ! Note: Currently, the smoothing is not yet implemented.
-
-    ! Finds the minimum or maximum value of the smoothed version
-    ! (smooth) of the given field (orig).  If a center cannot be
-    ! found, sets calcparm=.false., otherwise places the longitude in
-    ! lonout and latitude in latout, gridpoint location in (iout,jout)
-
-    ! Mandatory arguments:
-
-    ! grid - grid to search
-    ! orig - field to search
-    ! smooth - smoothed version of the field (smoothed via relax4e)
-    ! iout,jout - center location
-    ! rout - center value (min MSLP, min wind, max or min zeta, etc.)
-    ! calcparm - true if a center was found, false otherwise
-    ! lonout,latout - geographic location of the center
-    ! dxdymean - mean grid spacing of the entire domain
-    ! cparm - which type of field: zeta, hgt, wind, slp
-    ! srsq - square of the maximum radius from domain center to search
-    ! ids, ..., kpe - grid, memory and patch dimensions
-
-    ! Optional arguments:
-
-    ! iuvguess,juvguess - first guess center location to restrict search
-    ! to a subset of the grid.
-    ! north_hemi - we're in the northern hemisphere: true or false?
-
     implicit none
 
     integer, intent(in), optional :: iuvguess,juvguess
@@ -1541,17 +1834,41 @@ contains
     endif resultif
   end subroutine find_center
 
+  !> This computes approximate distances in km from the domain center
+  !> of the various points in the domain.
+  !>
+  !> It uses the same computation as used for distsq: the calculation
+  !> is done in gridpoint space, approximating the domain as
+  !> flat. Point-to-point distances come from Atm%gridstruct%dxa and
+  !> Atm%gridstruct%dya. This routine also determines the distance
+  !> from the tracker center location to the nearest point in the
+  !> domain edge.
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] its ???
+  !> @param[in] ite ???
+  !> @param[in] jts ???
+  !> @param[in] jte ???
+  !> @param[in] kts ???
+  !> @param[in] kte ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_distsq(Atm, &
       ids,ide,jds,jde,kds,kde, &
       ims,ime,jms,jme,kms,kme, &
       its,ite,jts,jte,kts,kte)
-    ! This computes approximate distances in km from the domain
-    ! center of the various points in the domain. It uses the same
-    ! computation as used for distsq: the calculation is done in
-    ! gridpoint space, approximating the domain as flat.
-    ! Point-to-point distances come from Atm%gridstruct%dxa and Atm%gridstruct%dya.
-    ! This routine also determines the distance from the tracker
-    ! center location to the nearest point in the domain edge.
     implicit none
     type(fv_atmos_type), intent(inout) :: Atm
     character*255 message
@@ -1585,6 +1902,29 @@ contains
 
   end subroutine get_distsq
 
+  !> ???
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] its ???
+  !> @param[in] ite ???
+  !> @param[in] jts ???
+  !> @param[in] jte ???
+  !> @param[in] kts ???
+  !> @param[in] kte ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_tracker_distsq(Atm, &
       ids,ide,jds,jde,kds,kde, &
       ims,ime,jms,jme,kms,kme, &
@@ -1671,37 +2011,50 @@ contains
     call mpp_error(NOTE, message)
   end subroutine get_tracker_distsq
 
+  !> This subroutine computes the distance between two lat/lon points
+  !> by using spherical coordinates to calculate the great circle
+  !> distance between the points.
+  !>
+  !> <pre>
+  !>                       Figure out the angle (a) between pt.B and pt.C,
+  !>             N. Pole   then figure out how much of a % of a great
+  !>               x       circle distance that angle represents.
+  !>              / \
+  !>            b/   \     cos(a) = (cos b)(cos c) + (sin b)(sin c)(cos A)
+  !>            /     \                                             .
+  !>        pt./<--A-->\c     NOTE: The latitude arguments passed to the
+  !>        B /         \           subr are the actual lat vals, but in
+  !>                     \          the calculation we use 90-lat.
+  !>               a      \                                      .
+  !>                       \pt.  
+  !>                         C    
+  !> <\pre>
+  !>
+  !> @note You may get strange results if you:
+  !> 1. use positive values for SH lats AND you try computing
+  !> distances across the equator, or
+  !> 2. use lon values of 0 to -180 for WH lons AND you try computing
+  !> distances across the 180E meridian.
+  !>
+  !> @note In the diagram above, (a) is the angle between pt. B and
+  !> pt. C (with pt. x as the vertex), and (A) is the difference in
+  !> longitude (in degrees, absolute value) between pt. B and pt. C.
+  !>
+  !> @note The parameter ecircum is defined (as of the
+  !> original writing of this system) in KM, not M, so be aware that
+  !> the distance returned from this subroutine is also in KM.
+  !>
+  !> Copied from gettrk_main.f
+  !>
+  !> @param[in] rlonb ???
+  !> @param[in] rlatb ???
+  !> @param[in] rlonc ???
+  !> @param[in] rlatc ???
+  !> @param[in] xdist ???
+  !> @param[in] degrees ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine calcdist(rlonb,rlatb,rlonc,rlatc,xdist,degrees)
-    ! Copied from gettrk_main.f
-    !
-    !     ABSTRACT: This subroutine computes the distance between two
-    !               lat/lon points by using spherical coordinates to
-    !               calculate the great circle distance between the points.
-    !                       Figure out the angle (a) between pt.B and pt.C,
-    !             N. Pole   then figure out how much of a % of a great
-    !               x       circle distance that angle represents.
-    !              / \
-    !            b/   \     cos(a) = (cos b)(cos c) + (sin b)(sin c)(cos A)
-    !            /     \                                             .
-    !        pt./<--A-->\c     NOTE: The latitude arguments passed to the
-    !        B /         \           subr are the actual lat vals, but in
-    !                     \          the calculation we use 90-lat.
-    !               a      \                                      .
-    !                       \pt.  NOTE: You may get strange results if you:
-    !                         C    (1) use positive values for SH lats AND
-    !                              you try computing distances across the
-    !                              equator, or (2) use lon values of 0 to
-    !                              -180 for WH lons AND you try computing
-    !                              distances across the 180E meridian.
-    !
-    !     NOTE: In the diagram above, (a) is the angle between pt. B and
-    !     pt. C (with pt. x as the vertex), and (A) is the difference in
-    !     longitude (in degrees, absolute value) between pt. B and pt. C.
-    !
-    !     !!! NOTE !!! -- THE PARAMETER ecircum IS DEFINED (AS OF THE
-    !     ORIGINAL WRITING OF THIS SYSTEM) IN KM, NOT M, SO BE AWARE THAT
-    !     THE DISTANCE RETURNED FROM THIS SUBROUTINE IS ALSO IN KM.
-    !
     implicit none
 
     real, intent(inout) :: degrees
@@ -1744,6 +2097,34 @@ contains
     return
   end subroutine calcdist
 
+  !> ???
+  !>
+  !> @param[inout] Atm ???
+  !> @param[in] iguess first guess gridpoint location.
+  !> @param[in] jguess first guess gridpoint location.
+  !> @param[in] longuess first guess geographic location.
+  !> @param[in] latguess first guess geographic location.
+  !> @param[out] ierr ???
+  !> @param[in] ids ???
+  !> @param[in] ide ???
+  !> @param[in] jds ???
+  !> @param[in] jde ???
+  !> @param[in] kds ???
+  !> @param[in] kde ???
+  !> @param[in] ims ???
+  !> @param[in] ime ???
+  !> @param[in] jms ???
+  !> @param[in] jme ???
+  !> @param[in] kms ???
+  !> @param[in] kme ???
+  !> @param[in] ips ???
+  !> @param[in] ipe ???
+  !> @param[in] jps ???
+  !> @param[in] jpe ???
+  !> @param[in] kps ???
+  !> @param[in] kpe ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine get_lonlat(Atm,iguess,jguess,longuess,latguess,ierr, &
       ids,ide, jds,jde, kds,kde, &
       ims,ime, jms,jme, kms,kme, &
@@ -1785,12 +2166,18 @@ contains
     endif
   end subroutine get_lonlat
 
+  !> This modifies a (lat,lon) pair so that the longitude fits
+  !> between [-180,180] and the latitude between [-90,90], taking
+  !> into account spherical geometry.
+  !>
+  !> @note Inputs and outputs are in degrees.
+  !>
+  !> @param[in] xlon1 ???
+  !> @param[in] ylat1 ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine clean_lon_lat(xlon1,ylat1)
     real, intent(inout) :: xlon1,ylat1
-    ! This modifies a (lat,lon) pair so that the longitude fits
-    ! between [-180,180] and the latitude between [-90,90], taking
-    ! into account spherical geometry.
-    ! NOTE: inputs and outputs are in degrees
     xlon1=(mod(xlon1+3600.+180.,360.)-180.)
     ylat1=(mod(ylat1+3600.+180.,360.)-180.)
     if(ylat1>90.) then
@@ -1802,9 +2189,13 @@ contains
     endif
   end subroutine clean_lon_lat
 
-  !----------------------------------------------------------------------------------
-  ! These two simple routines return an N, S, E or W for the
-  ! hemisphere of a latitude or longitude.
+  !> Return an N, S for the hemisphere of a latitude.
+  !>
+  !> @param[in] lat The latitude.
+  !>
+  !> @return N or S.
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   character(1) function get_lat_ns(lat)
     ! This could be written simply as merge('N','S',lat>=0) if F95 allowed
     implicit none
@@ -1815,6 +2206,14 @@ contains
       get_lat_ns='S'
     endif
   end function get_lat_ns
+
+  !> Return an E or W for the hemisphere of a longitude.
+  !>
+  !> @param[in] lon The longitude.
+  !>
+  !> @return E or W.
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   character(1) function get_lon_ew(lon)
     ! This could be written simply as merge('E','W',lon>=0) if F95 allowed
     implicit none
@@ -1826,9 +2225,13 @@ contains
     endif
   end function get_lon_ew
 
+  !> This updates the tracker i/j fix location and square of the
+  !> distance to the tracker center after a nest move.
+  !>
+  !> @param[in] Atm ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine fv_tracker_post_move(Atm)
-    ! This updates the tracker i/j fix location and square of the
-    ! distance to the tracker center after a nest move.
     type(fv_atmos_type), intent(inout) :: Atm
     integer :: ierr, &
         ids,ide,jds,jde,kds,kde, &
@@ -1859,8 +2262,15 @@ contains
   end subroutine fv_tracker_post_move
 
 #ifdef DEBUG
+  !> Checks value of a tracking parameter for validity.
+  !>
+  !> @param[in] cparm ???
+  !> @param[in] v ???
+  !> @param[in] i ???
+  !> @param[in] j ???
+  !>
+  !> @author W. Ramstrom, AOML/HRD (William.Ramstrom@noaa.gov) @date 03/24/2022  
   subroutine check_validity(cparm, v, i, j)
-    ! [KA] Checks value of a tracking parameter for validity
     character*(*), intent(in) :: cparm
     real, intent(in) :: v
     integer, intent(in) :: i, j

@@ -10,7 +10,6 @@
 
   implicit none
 
-
   !> Atmosphere time step in seconds
   integer                  :: dt_atmos
 

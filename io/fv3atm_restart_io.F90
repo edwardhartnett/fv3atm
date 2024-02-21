@@ -1,7 +1,12 @@
-!> \file fv3atm_restart_io.F90
-!! This file contains the restart reading and writing code, for quilt and non-quilt
-!! of the Sfcprop and physics data.
+!> @file
+!> @brief Restart reading and writing code, for quilt and non-quilt of
+!> the Sfcprop and physics data.
+!> @author Samuel Trahan @date Jun 20, 2023
 
+!> @brief Restart reading and writing code, for quilt and non-quilt of
+!> the Sfcprop and physics data.
+!>
+!> @author Samuel Trahan @date Jun 20, 2023
 module fv3atm_restart_io_mod
 
   use block_control_mod,  only: block_control_type
@@ -35,67 +40,89 @@ module fv3atm_restart_io_mod
   public fv_sfc_restart_output
   public fv_sfc_restart_bundle_setup
 
-  !>\defgroup fv3atm_restart_io_mod module
-  !> @{
-
   !>@Internal storage for reading and writing physics restart files.
   type phy_data_type
-    real(kind=kind_phys), pointer, dimension(:,:,:)   :: var2 => null()
-    real(kind=kind_phys), pointer, dimension(:,:,:,:) :: var3 => null()
-    character(len=32),dimension(:),pointer :: var2_names => null()
-    character(len=32),dimension(:),pointer :: var3_names => null()
-    integer :: nvar2d = 0, nvar3d = 0, npz = 0
+    real(kind=kind_phys), pointer, dimension(:,:,:)   :: var2 => null() !< ???
+    real(kind=kind_phys), pointer, dimension(:,:,:,:) :: var3 => null() !< ???
+    character(len=32),dimension(:),pointer :: var2_names => null() !< ???
+    character(len=32),dimension(:),pointer :: var3_names => null() !< ???
+    integer :: nvar2d = 0 !< ???
+    integer :: nvar3d = 0 !< ???
+    integer :: npz = 0 !< ???
   contains
-    procedure :: alloc => phy_data_alloc
-    procedure :: transfer_data => phy_data_transfer_data
+    procedure :: alloc => phy_data_alloc !< ???
+    procedure :: transfer_data => phy_data_transfer_data !< ???
     final phy_data_final
   end type phy_data_type
 
   !--- GFDL filenames
 
-  !>@ Filename template for orography data. FMS may add grid and tile information to the name
+  !> Filename template for orography data. FMS may add grid and tile
+  !> information to the name.
   character(len=32), parameter  :: fn_oro    = 'oro_data.nc'
 
-  !>@ Filename template for gravity wave drag large-scale orography data. FMS may add grid and tile information to the name
+  !> Filename template for gravity wave drag large-scale orography
+  !> data. FMS may add grid and tile information to the name.
   character(len=32), parameter  :: fn_oro_ls = 'oro_data_ls.nc'
 
-  !>@ Filename template for gravity wave drag small-scale orography data. FMS may add grid and tile information to the name
+  !> Filename template for gravity wave drag small-scale orography
+  !> data. FMS may add grid and tile information to the name.
   character(len=32), parameter  :: fn_oro_ss = 'oro_data_ss.nc'
 
-  !>@ Filename template for surface data that doesn't fall under other categories. FMS may add grid and tile information to the name
+  !> Filename template for surface data that doesn't fall under other
+  !> categories. FMS may add grid and tile information to the name.
   character(len=32), parameter  :: fn_srf    = 'sfc_data.nc'
 
-  !>@ Filename template for physics diagnostic data. FMS may add grid and tile information to the name
+  !> Filename template for physics diagnostic data. FMS may add grid
+  !> and tile information to the name.
   character(len=32), parameter  :: fn_phy    = 'phy_data.nc'
 
-  !>@ Filename template for monthly dust data for RRFS_SD. FMS may add grid and tile information to the name
+  !> Filename template for monthly dust data for RRFS_SD. FMS may add
+  !> grid and tile information to the name.
   character(len=32), parameter  :: fn_dust12m= 'dust12m_data.nc'
 
-  !>@ Filename template for RRFS-SD emissions data. FMS may add grid and tile information to the name
+  !> Filename template for RRFS-SD emissions data. FMS may add grid
+  !> and tile information to the name.
   character(len=32), parameter  :: fn_emi    = 'emi_data.nc'
 
-  !>@ Filename template for RRFS-SD smoke data. FMS may add grid and tile information to the name
+  !> Filename template for RRFS-SD smoke data. FMS may add grid and
+  !> tile information to the name.
   character(len=32), parameter  :: fn_rrfssd = 'SMOKE_RRFS_data.nc'
 
   real(kind_phys), parameter:: zero = 0.0, one = 1.0
 
-  !>@ Instance of phy_data_type for quilt output of physics diagnostic data
+  !> Instance of phy_data_type for quilt output of physics diagnostic
+  !> data.
   type(phy_data_type) :: phy_quilt
 
-  !>@ Instance of clm_lake_data_type for quilt output of CLM Lake model restart data
+  !> Instance of clm_lake_data_type for quilt output of CLM Lake model
+  !> restart data.
   type(clm_lake_data_type) :: clm_lake_quilt
 
-  !>@ Instance of Sfc_io_data_type for quilt output of surface restart data
+  !> Instance of Sfc_io_data_type for quilt output of surface restart
+  !> data.
   type(Sfc_io_data_type) :: sfc_quilt
 
-  !>@ Instance of rrfs_sd_state_type for quilt output of RRFS-SD scheme restart data
+  !> Instance of rrfs_sd_state_type for quilt output of RRFS-SD scheme
+  !> restart data.
   type(rrfs_sd_state_type) :: rrfs_sd_quilt
 
 contains
 
-  !>@brief Reads physics and surface fields.
-  !> \section fv3atm_restart_read subroutine
-  !! Calls sfc_prop_restart_read and phys_restart_read to read all surface and physics restart files.
+  !> Reads physics and surface fields.
+  !> 
+  !> Calls sfc_prop_restart_read and phys_restart_read to read all
+  !> surface and physics restart files.
+  !>
+  !> @param[inout] GFS_Data ???
+  !> @param[inout] GFS_Restart ???
+  !> @param[in] Atm_block ???
+  !> @param[inout] Model ???
+  !> @param[in] fv_domain ???
+  !> @param[in] warm_start ???
+  !> @param[in] ignore_rst_cksum ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine fv3atm_restart_read (GFS_Data, GFS_Restart, Atm_block, Model, fv_domain, warm_start, ignore_rst_cksum)
     implicit none
     type(GFS_data_type),      intent(inout) :: GFS_Data(:)
@@ -114,11 +141,21 @@ contains
 
   end subroutine fv3atm_restart_read
 
-  !>@brief Writes surface and physics restart fields without using the write component (quilt).
-  !> \section fv3atm_restart_write subroutine
-  !! Calls sfc_prop_restart_write and phys_restart_write to write
-  !! surface and physics restart fields. This pauses the model to
-  !! write; it does not use the write component (quilt).
+  !> Writes surface and physics restart fields without using the write
+  !> component (quilt).
+  !>
+  !> @param[inout] GFS_Data ???
+  !> @param[inout] GFS_Restart ???
+  !> @param[in] Atm_block ???
+  !> @param[inout] Model ???
+  !> @param[in] fv_domain ???
+  !> @param[in] timestamp ???
+  !>
+  !> Calls sfc_prop_restart_write and phys_restart_write to write
+  !> surface and physics restart fields. This pauses the model to
+  !> write; it does not use the write component (quilt).
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine fv3atm_restart_write (GFS_Data, GFS_Restart, Atm_block, Model, fv_domain, timestamp)
     implicit none
     type(GFS_data_type),         intent(inout) :: GFS_Data(:)
@@ -136,9 +173,13 @@ contains
 
   end subroutine fv3atm_restart_write
 
-  !----------------
-  ! fv3atm_checksum
-  !----------------
+  !> ???
+  !> 
+  !> @param[in] Model ???
+  !> @param[in] GFS_Data ???
+  !> @param[in] Atm_block ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine fv3atm_checksum (Model, GFS_Data, Atm_block)
     implicit none
     !--- interface variables
@@ -496,12 +537,21 @@ contains
     deallocate(temp3dlevsp1)
   end subroutine fv3atm_checksum
 
-  !>@brief Reads surface, orography, CLM Lake, and RRFS-SD data.
-  !> \section sfc_prop_restart_read subroutine
-  !!  Creates and populates a data type which is then used to "register"
-  !!  restart variables with the FMS restart subsystem.
-  !!  Calls an FMS routine to restore the data from a restart file.
-  !!  Also calculates sncovr if it is not present in the restart file.
+  !> Reads surface, orography, CLM Lake, and RRFS-SD data.
+  !>
+  !> Creates and populates a data type which is then used to "register"
+  !> restart variables with the FMS restart subsystem.
+  !> Calls an FMS routine to restore the data from a restart file.
+  !> Also calculates sncovr if it is not present in the restart file.
+  !>
+  !> @param[inout] Sfcprop ???
+  !> @param[in] Atm_block ???
+  !> @param[inout] Model ???
+  !> @param[in] fv_domain ???
+  !> @param[in] warm_start ???
+  !> @param[in] ignore_rst_cksum ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine sfc_prop_restart_read (Sfcprop, Atm_block, Model, fv_domain, warm_start, ignore_rst_cksum)
     use fv3atm_rrfs_sd_io
     implicit none
@@ -702,11 +752,19 @@ contains
 
   end subroutine sfc_prop_restart_read
 
-  !>@brief Writes surface restart data without using the write component.
-  !> \section sfc_prop_restart_write procedure
-  !! Routine to write out GFS surface restarts via the FMS restart
-  !! subsystem. Takes an optional argument to append timestamps for intermediate
-  !! restarts.
+  !> Writes surface restart data without using the write component.
+  !>
+  !> Routine to write out GFS surface restarts via the FMS restart
+  !> subsystem. Takes an optional argument to append timestamps for intermediate
+  !> restarts.
+  !>
+  !> @param[inout] Sfcprop ???
+  !> @param[in] Atm_block ???
+  !> @param[inout] Model ???
+  !> @param[in] fv_domain ???
+  !> @param[in] timestamp ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine sfc_prop_restart_write (Sfcprop, Atm_block, Model, fv_domain, timestamp)
     use fv3atm_rrfs_sd_io
     implicit none
@@ -794,11 +852,19 @@ contains
 
   end subroutine sfc_prop_restart_write
 
-  !>@brief Reads the physics restart data.
-  !> \section phys_restart_read subroutine
-  !! Creates and populates a data type which is then used to "register"
-  !! restart variables with the GFDL FMS restart subsystem.
-  !! Calls a GFDL FMS routine to restore the data from a restart file.
+  !> Reads the physics restart data.
+  !>
+  !> Creates and populates a data type which is then used to "register"
+  !> restart variables with the GFDL FMS restart subsystem.
+  !> Calls a GFDL FMS routine to restore the data from a restart file.
+  !>
+  !> @param[inout] GFS_Restart ???
+  !> @param[in] Atm_block ???
+  !> @param[inout] Model ???
+  !> @param[in] fv_domain ???
+  !> @param[in] ignore_rst_cksum ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine phys_restart_read (GFS_Restart, Atm_block, Model, fv_domain, ignore_rst_cksum)
     implicit none
     !--- interface variable definitions
@@ -867,11 +933,19 @@ contains
 
   end subroutine phys_restart_read
 
-  !>@brief Writes the physics restart file without using the write component
-  !> \section phys_restart_write subroutine
-  !! Routine to write out GFS surface restarts via the FMS restart
-  !! subsystem. Takes an optional argument to append timestamps for intermediate
-  !! restarts.
+  !> Writes the physics restart file without using the write component.
+  !> 
+  !> Routine to write out GFS surface restarts via the FMS restart
+  !> subsystem. Takes an optional argument to append timestamps for intermediate
+  !> restarts.
+  !>
+  !> @param[in] GFS_Restart ???
+  !> @param[in] Atm_block ???
+  !> @param[in] Model ???
+  !> @param[in] fv_domain ???
+  !> @param[in] timestamp ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine phys_restart_write (GFS_Restart, Atm_block, Model, fv_domain, timestamp)
     implicit none
     !--- interface variable definitions
@@ -966,9 +1040,16 @@ contains
 
   end subroutine phys_restart_write
 
-  !>@brief Allocates buffers and registers fields for a quilting (write component) restart.
-  !> \section fv3atm_restart_register subroutine
-  !! Allocates all data buffers and sets variable names for surface and physics restarts.
+  !> Allocates buffers and registers fields for a quilting (write component) restart.
+  !> 
+  !> Allocates all data buffers and sets variable names for surface and physics restarts.
+  !>
+  !> @param[inout] Sfcprop ???
+  !> @param[inout] GFS_Restart ???
+  !> @param[in] Atm_block ???
+  !> @param[inout] Model ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine fv3atm_restart_register (Sfcprop, GFS_restart, Atm_block, Model)
     implicit none
 
@@ -999,7 +1080,13 @@ contains
 
   end subroutine fv3atm_restart_register
 
-  !>@Copies physics restart fields from write component data structures to the model grid.
+  !> Copies physics restart fields from write component data
+  !> structures to the model grid.
+  !>
+  !> @param[in] GFS_Restart ???
+  !> @param[in] Atm_block ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine fv_phy_restart_output(GFS_Restart, Atm_block)
 
     implicit none
@@ -1011,7 +1098,14 @@ contains
 
   end subroutine fv_phy_restart_output
 
-  !>@Copies physics restart fields from the model grid to write component data structures
+  !> Copies physics restart fields from the model grid to write
+  !> component data structures.
+  !>
+  !> @param[in] Sfcprop ???
+  !> @param[in] Atm_block ???
+  !> @param[in] Model ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine fv_sfc_restart_output(Sfcprop, Atm_block, Model)
     !--- interface variable definitions
     implicit none
@@ -1030,7 +1124,13 @@ contains
 
   end subroutine fv_sfc_restart_output
 
-  !>@ Creates the ESMF bundle for physics restart data
+  !> Creates the ESMF bundle for physics restart data.
+  !>
+  !> @param[inout] bundle ???
+  !> @param[inout] grid ???
+  !> @param[out] rc Return code.
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine fv_phy_restart_bundle_setup(bundle, grid, rc)
     use esmf
 
@@ -1080,7 +1180,14 @@ contains
 
   end subroutine fv_phy_restart_bundle_setup
 
-  !>@ Creates the ESMF bundle for surface restart data
+  !> Creates the ESMF bundle for surface restart data.
+  !>
+  !> @param[inout] bundle ???
+  !> @param[inout] grid ???
+  !> @param[in] Model ???
+  !> @param[out] rc Return code.
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine fv_sfc_restart_bundle_setup(bundle, grid, Model, rc)
     use esmf
 
@@ -1120,11 +1227,11 @@ contains
   !
   !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  !>@brief Allocates and fills internal data structures for quilt or non-quilt physics restart I/O
+  !>brief Allocates and fills internal data structures for quilt or non-quilt physics restart I/O
   !> \section phy_data_type%alloc procedure
-  !! Allocates the variable and variable name data structures in the phy_data_type.
-  !! Also, copies the GFS_Restart names to the phy_data_type arrays.
-  !! Do not call from outside this module; it is part of the internal implementation.
+  !> Allocates the variable and variable name data structures in the phy_data_type.
+  !> Also, copies the GFS_Restart names to the phy_data_type arrays.
+  !> Do not call from outside this module; it is part of the internal implementation.
   logical function phy_data_alloc(phy, GFS_Restart, Atm_block)
     use fv3atm_common_io, only: get_nx_ny_from_atm
     implicit none
@@ -1158,13 +1265,24 @@ contains
     phy_data_alloc = .true.
   end function phy_data_alloc
 
-  !>@brief Copies data between the internal physics restart data structures and the model grid
-  !> \section phy_data_type%transfer_data procedure
-  !! Restart I/O stores data in temporary arrays while interfacing with ESMF or FMS. This procedure
-  !! copies between the temporary arrays and the model grid. The "reading" flag controls the
-  !! direction of the copy. For reading=.true., data is copied from the temporary arrays to the
-  !! model grid (during restart read). For reading=.false., data is copied from the model grid to
-  !! temporary arrays (for writing the restart).
+  !> Copies data between the internal physics restart data structures
+  !> and the model grid.
+  !> 
+  !> Restart I/O stores data in temporary arrays while interfacing
+  !> with ESMF or FMS. This procedure copies between the temporary
+  !> arrays and the model grid. The "reading" flag controls the
+  !> direction of the copy. For reading=.true., data is copied from
+  !> the temporary arrays to the model grid (during restart read). For
+  !> reading=.false., data is copied from the model grid to temporary
+  !> arrays (for writing the restart).
+  !> 
+  !> @param phy ???
+  !> @param[in] reading ???
+  !> @param GFS_Restart ???
+  !> @param Atm_block ???
+  !> @param[in] Model ???
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine phy_data_transfer_data(phy, reading, GFS_Restart, Atm_block, Model)
     use mpp_mod,            only: FATAL, mpp_error
     implicit none
@@ -1265,12 +1383,16 @@ contains
 
   end subroutine phy_data_transfer_data
 
-  !>@ Destructor for phy_data_type
+  !> Destructor for phy_data_type.
+  !>
+  !> @param phy ???  
+  !>
+  !> @author Samuel Trahan @date Jun 20, 2023
   subroutine phy_data_final(phy)
     implicit none
     type(phy_data_type) :: phy
 
-    ! This #define reduces code length by a lot
+    !> This define reduces code length by a lot.
 #define IF_ASSOC_DEALLOC_NULL(var) \
     if(associated(phy%var)) then ; \
       deallocate(phy%var) ; \
@@ -1286,4 +1408,3 @@ contains
   end subroutine phy_data_final
 
 end module fv3atm_restart_io_mod
-!> @}
