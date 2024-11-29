@@ -24,6 +24,6 @@ endfunction()
 #  add_fv3atm_mpi_test(${testname})
 #endforeach()
 
-foreach(testname test_post_nems_routines)
+foreach(testname test_post_nems_routines test_io)
   add_fv3atm_serial_test(${testname})
 endforeach()
