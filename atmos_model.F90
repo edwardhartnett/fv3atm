@@ -1,47 +1,28 @@
-!***********************************************************************
-!*                   GNU General Public License                        *
-!* This file is a part of fvGFS.                                       *
-!*                                                                     *
-!* fvGFS is free software; you can redistribute it and/or modify it    *
-!* and are expected to follow the terms of the GNU General Public      *
-!* License as published by the Free Software Foundation; either        *
-!* version 2 of the License, or (at your option) any later version.    *
-!*                                                                     *
-!* fvGFS is distributed in the hope that it will be useful, but        *
-!* WITHOUT ANY WARRANTY; without even the implied warranty of          *
-!* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU   *
-!* General Public License for more details.                            *
-!*                                                                     *
-!* For the full text of the GNU General Public License,                *
-!* write to: Free Software Foundation, Inc.,                           *
-!*           675 Mass Ave, Cambridge, MA 02139, USA.                   *
-!* or see:   http://www.gnu.org/licenses/gpl.html                      *
-!***********************************************************************
+!> @file
+!> @brief Driver for the atmospheric model, contains routines to
+!> advance the atmospheric model state by one time step.
+!> @author Jun Wang @date 01/2017
+
+!> @brief Driver for the atmospheric model, contains routines to
+!> advance the atmospheric model state by one time step.
+!>
+!> This version of atmos_model_mod has been designed around the implicit
+!> version diffusion scheme of the GCM. It requires two routines to advance
+!> the atmospheric model one time step into the future. These two routines
+!> correspond to the down and up sweeps of the standard tridiagonal solver.
+!> Most atmospheric processes (dynamics,radiation,etc.) are performed
+!> in the down routine. The up routine finishes the vertical diffusion
+!> and computes moisture related terms (convection,large-scale condensation,
+!> and precipitation).
+
+!> The boundary variables needed by other component models for coupling
+!> are contained in a derived data type. A variable of this derived type
+!> is returned when initializing the atmospheric model. It is used by other
+!> routines in this module and by coupling routines. The contents of
+!> this derived type should only be modified by the atmospheric model.
+!>
+!> @author Jun Wang @date 01/2017
 module atmos_model_mod
-!-----------------------------------------------------------------------
-!<OVERVIEW>
-!  Driver for the atmospheric model, contains routines to advance the
-!  atmospheric model state by one time step.
-!</OVERVIEW>
-
-!<DESCRIPTION>
-!     This version of atmos_model_mod has been designed around the implicit
-!     version diffusion scheme of the GCM. It requires two routines to advance
-!     the atmospheric model one time step into the future. These two routines
-!     correspond to the down and up sweeps of the standard tridiagonal solver.
-!     Most atmospheric processes (dynamics,radiation,etc.) are performed
-!     in the down routine. The up routine finishes the vertical diffusion
-!     and computes moisture related terms (convection,large-scale condensation,
-!     and precipitation).
-
-!     The boundary variables needed by other component models for coupling
-!     are contained in a derived data type. A variable of this derived type
-!     is returned when initializing the atmospheric model. It is used by other
-!     routines in this module and by coupling routines. The contents of
-!     this derived type should only be modified by the atmospheric model.
-
-!</DESCRIPTION>
-
 use mpp_mod,            only: mpp_pe, mpp_root_pe, mpp_clock_id, mpp_clock_begin
 use mpp_mod,            only: mpp_clock_end, CLOCK_COMPONENT, MPP_CLOCK_SYNC
 use mpp_mod,            only: FATAL, mpp_min, mpp_max, mpp_error, mpp_chksum
@@ -124,139 +105,177 @@ use fv_tracker_mod,           only: check_is_moving_nest, execute_tracker
 implicit none
 private
 
+!> ???
 public update_atmos_radiation_physics
+
+!> ???
 public update_atmos_model_state
+
+!> ???
 public update_atmos_model_dynamics
-public atmos_model_init, atmos_model_end, atmos_data_type
-public atmos_model_exchange_phase_1, atmos_model_exchange_phase_2
+
+!> ???
+public atmos_model_init
+
+!> ???
+public atmos_model_end
+
+!> ???
+public atmos_data_type
+
+!> ???
+public atmos_model_exchange_phase_1
+
+!> ???
+public atmos_model_exchange_phase_2
+
+!> ???
 public atmos_model_restart
+
+!> ???
 public get_atmos_model_ungridded_dim
+
+!> ???
 public atmos_model_get_nth_domain_info
+
+!> ???
 public addLsmask2grid
+
+!> ???
 public setup_exportdata
 !-----------------------------------------------------------------------
 
 !<PUBLICTYPE >
  type atmos_data_type
-     integer                       :: axes(4)            ! axis indices (returned by diag_manager) for the atmospheric grid
-                                                         ! (they correspond to the x, y, pfull, phalf axes)
-     integer, pointer              :: pelist(:) =>null() ! pelist where atmosphere is running.
-     integer                       :: layout(2)          ! computer task laytout
-     logical                       :: regional           ! true if domain is regional
-     logical                       :: nested             ! true if there is a nest
-     logical                       :: moving_nest_parent ! true if this grid has a moving nest child
-     logical                       :: is_moving_nest     ! true if this is a moving nest grid
-     logical                       :: isAtCapTime        ! true if currTime is at the cap driverClock's currTime
-     integer                       :: ngrids             !
-     integer                       :: mygrid             !
-     integer                       :: mlon, mlat
-     integer                       :: iau_offset         ! iau running window length
-     logical                       :: pe                 ! current pe.
+     integer                       :: axes(4)            !< axis indices (returned by diag_manager) for the atmospheric grid
+                                                         !! (they correspond to the x, y, pfull, phalf axes)
+     integer, pointer              :: pelist(:) =>null() !< pelist where atmosphere is running.
+     integer                       :: layout(2)          !< computer task laytout
+     logical                       :: regional           !< true if domain is regional
+     logical                       :: nested             !< true if there is a nest
+     logical                       :: moving_nest_parent !< true if this grid has a moving nest child
+     logical                       :: is_moving_nest     !< true if this is a moving nest grid
+     logical                       :: isAtCapTime        !< true if currTime is at the cap driverClock's currTime
+     integer                       :: ngrids             !< ???
+     integer                       :: mygrid             !< ???
+     integer                       :: mlon               !< ???
+     integer                       :: mlat               !< ???
+     integer                       :: iau_offset         !< iau running window length
+     logical                       :: pe                 !< current pe.
      real(kind=GFS_kind_phys), pointer, dimension(:)     :: ak, bk
-     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: lon_bnd  => null() ! local longitude axis grid box corners in radians.
-     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: lat_bnd  => null() ! local latitude axis grid box corners in radians.
-     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: lon      => null() ! local longitude axis grid box centers in radians.
-     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: lat      => null() ! local latitude axis grid box centers in radians.
-     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: dx, dy
-     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: area
-     real(kind=GFS_kind_phys), pointer, dimension(:,:,:) :: layer_hgt, level_hgt
-     type(domain2d)                :: domain             ! domain decomposition
-     type(domain2d)                :: domain_for_read    ! domain decomposition
-     type(time_type)               :: Time               ! current time
-     type(time_type)               :: Time_step          ! atmospheric time step.
-     type(time_type)               :: Time_init          ! reference time.
-     type(grid_box_type)           :: grid               ! hold grid information needed for 2nd order conservative flux exchange
-     type(GFS_externaldiag_type), pointer, dimension(:) :: Diag
+     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: lon_bnd  => null() !< local longitude axis grid box corners in radians.
+     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: lat_bnd  => null() !< local latitude axis grid box corners in radians.
+     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: lon      => null() !< local longitude axis grid box centers in radians.
+     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: lat      => null() !< local latitude axis grid box centers in radians.
+     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: dx    !< ???
+     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: dy    !< ???
+     real(kind=GFS_kind_phys), pointer, dimension(:,:)   :: area  !< ???
+     real(kind=GFS_kind_phys), pointer, dimension(:,:,:) :: layer_hgt !< ???
+     real(kind=GFS_kind_phys), pointer, dimension(:,:,:) :: level_hgt !< ???
+     type(domain2d)                :: domain             !< domain decomposition
+     type(domain2d)                :: domain_for_read    !< domain decomposition
+     type(time_type)               :: Time               !< current time
+     type(time_type)               :: Time_step          !< atmospheric time step.
+     type(time_type)               :: Time_init          !< reference time.
+     type(grid_box_type)           :: grid               !< hold grid information needed for 2nd order conservative flux exchange
+     type(GFS_externaldiag_type), pointer, dimension(:) :: Diag  !< to calculate gradient on cubic sphere grid.
  end type atmos_data_type
-                                                         ! to calculate gradient on cubic sphere grid.
+
 !</PUBLICTYPE >
 
-! these two arrays, lon_bnd_work and lat_bnd_work are 'working' arrays, always allocated
-! as (nlon+1, nlat+1) and are used to get the corner lat/lon values from the dycore.
-! these values are then copied to Atmos%lon_bnd, Atmos%lat_bnd which are allocated with
-! sizes that correspond to the corner coordinates distgrid in fcstGrid
+!> These two arrays, lon_bnd_work and lat_bnd_work are 'working' arrays, always allocated
+!> as (nlon+1, nlat+1) and are used to get the corner lat/lon values from the dycore.
+!> these values are then copied to Atmos%lon_bnd, Atmos%lat_bnd which are allocated with
+!> sizes that correspond to the corner coordinates distgrid in fcstGrid
 real(kind=GFS_kind_phys), pointer, dimension(:,:), save :: lon_bnd_work  => null()
-real(kind=GFS_kind_phys), pointer, dimension(:,:), save :: lat_bnd_work  => null()
-integer, save :: i_bnd_size, j_bnd_size
 
-integer :: fv3Clock, getClock, updClock, setupClock, radClock, physClock
+!> These two arrays, lon_bnd_work and lat_bnd_work are 'working' arrays, always allocated
+!> as (nlon+1, nlat+1) and are used to get the corner lat/lon values from the dycore.
+!> these values are then copied to Atmos%lon_bnd, Atmos%lat_bnd which are allocated with
+!> sizes that correspond to the corner coordinates distgrid in fcstGrid
+real(kind=GFS_kind_phys), pointer, dimension(:,:), save :: lat_bnd_work  => null()
+
+integer, save :: i_bnd_size !< ???
+integer, save :: j_bnd_size !< ???
+
+integer :: fv3Clock !< ???
+integer :: getClock !< ???
+integer :: updClock !< ???
+integer :: setupClock !< ???
+integer :: radClock !< ???
+integer :: physClock !< ???
 
 !-----------------------------------------------------------------------
-integer :: blocksize    = 1
-logical :: chksum_debug = .false.
-logical :: dycore_only  = .false.
-logical :: debug        = .false.
+integer :: blocksize    = 1 !< ???
+logical :: chksum_debug = .false. !< ???
+logical :: dycore_only  = .false. !< ???
+logical :: debug        = .false. !< ???
 !logical :: debug        = .true.
-logical :: sync         = .false.
-real    :: avg_max_length=3600.
-logical :: ignore_rst_cksum = .false.
+logical :: sync         = .false. !< ???
+real    :: avg_max_length=3600. !< ???
+logical :: ignore_rst_cksum = .false. !< ???
 namelist /atmos_model_nml/ blocksize, chksum_debug, dycore_only, debug, sync, ccpp_suite, avg_max_length, &
                            ignore_rst_cksum
 
-type (time_type) :: diag_time, diag_time_fhzero
+type (time_type) :: diag_time !< ???
+type (time_type) :: diag_time_fhzero !< ???
 
 !--- concurrent and decoupled radiation and physics variables
 !-------------------
 !  DYCORE containers
 !-------------------
-type(DYCORE_data_type),    allocatable :: DYCORE_Data(:)  ! number of blocks
+type(DYCORE_data_type),    allocatable :: DYCORE_Data(:)  !< number of blocks
 
 !----------------
 !  GFS containers
 !----------------
-type(GFS_externaldiag_type), target :: GFS_Diag(DIAG_SIZE)
-type(GFS_restart_type)              :: GFS_restart_var
+type(GFS_externaldiag_type), target :: GFS_Diag(DIAG_SIZE) !< ???
+type(GFS_restart_type)              :: GFS_restart_var !< ???
 
 !--------------
 ! IAU container
 !--------------
-type(iau_external_data_type)        :: IAU_Data ! number of blocks
+type(iau_external_data_type)        :: IAU_Data !< number of blocks
 
 !-----------------
 !  Block container
 !-----------------
-type (block_control_type), target   :: Atm_block
+type (block_control_type), target   :: Atm_block !< ???
 
 !-----------------------------------------------------------------------
 
-character(len=128) :: version = '$Id$'
-character(len=128) :: tagname = '$Name$'
+character(len=128) :: version = '$Id$' !< ???
+character(len=128) :: tagname = '$Name$' !< ???
 
 #ifdef NAM_phys
-  logical,parameter :: flip_vc = .false.
+  logical,parameter :: flip_vc = .false.  !< ???
 #else
-  logical,parameter :: flip_vc = .true.
+  logical,parameter :: flip_vc = .true. !< ???
 #endif
 
-  real(kind=GFS_kind_phys), parameter :: zero    = 0.0_GFS_kind_phys,     &
-                                         one     = 1.0_GFS_kind_phys,     &
-                                         epsln   = 1.0e-10_GFS_kind_phys, &
-                                         zorlmin = 1.0e-7_GFS_kind_phys
+  real(kind=GFS_kind_phys), parameter :: zero    = 0.0_GFS_kind_phys !< Zero.
+  real(kind=GFS_kind_phys), parameter :: one     = 1.0_GFS_kind_phys !< One.
+  real(kind=GFS_kind_phys), parameter :: epsln   = 1.0e-10_GFS_kind_phys !< Epsilon.
+  real(kind=GFS_kind_phys), parameter :: zorlmin = 1.0e-7_GFS_kind_phys !< ???
+                                         
+                                         
+                                         
 
 contains
 
-!#######################################################################
-! <SUBROUTINE NAME="update_atmos_radiation_physics">
-!
-!<DESCRIPTION>
-!   Called every time step as the atmospheric driver to compute the
-!   atmospheric tendencies for dynamics, radiation, vertical diffusion of
-!   momentum, tracers, and heat/moisture.  For heat/moisture only the
-!   downward sweep of the tridiagonal elimination is performed, hence
-!   the name "_down".
-!</DESCRIPTION>
-
-!   <TEMPLATE>
-!     call  update_atmos_radiation_physics (Atmos)
-!   </TEMPLATE>
-
-! <INOUT NAME="Atmos" TYPE="type(atmos_data_type)">
-!   Derived-type variable that contains fields needed by the flux exchange module.
-!   These fields describe the atmospheric grid and are needed to
-!   compute/exchange fluxes with other component models.  All fields in this
-!   variable type are allocated for the global grid (without halo regions).
-! </INOUT>
-
+!> Called every time step as the atmospheric driver to compute the
+!> atmospheric tendencies for dynamics, radiation, vertical diffusion of
+!> momentum, tracers, and heat/moisture.  For heat/moisture only the
+!> downward sweep of the tridiagonal elimination is performed, hence
+!> the name "_down".
+!>
+!> @param Atmos Derived-type variable that contains fields needed by
+!> the flux exchange module. These fields describe the atmospheric
+!> grid and are needed to compute/exchange fluxes with other
+!> component models.  All fields in this variable type are allocated
+!> for the global grid (without halo regions).
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine update_atmos_radiation_physics (Atmos)
 !-----------------------------------------------------------------------
   implicit none
@@ -429,28 +448,18 @@ subroutine update_atmos_radiation_physics (Atmos)
 
 !-----------------------------------------------------------------------
  end subroutine update_atmos_radiation_physics
-! </SUBROUTINE>
 
-
-!#######################################################################
-! <SUBROUTINE NAME="atmos_timestep_diagnostics">
-!
-! <OVERVIEW>
-! Calculates per-timestep, domain-wide, diagnostic, information and
-! prints to stdout from master rank. Must be called after physics
-! update but before first_time_step flag is cleared.
-! </OVERVIEW>
-
-!   <TEMPLATE>
-!     call  atmos_timestep_diagnostics (Atmos)
-!   </TEMPLATE>
-
-! <INOUT NAME="Atmos" TYPE="type(atmos_data_type)">
-!   Derived-type variable that contains fields needed by the flux exchange module.
-!   These fields describe the atmospheric grid and are needed to
-!   compute/exchange fluxes with other component models.  All fields in this
-!   variable type are allocated for the global grid (without halo regions).
-! </INOUT>
+!> Calculates per-timestep, domain-wide, diagnostic, information and
+!> prints to stdout from master rank. Must be called after physics
+!> update but before first_time_step flag is cleared.
+!>
+!> @param[in] Atmos Derived-type variable that contains fields
+!> needed by the flux exchange module. These fields describe the
+!> atmospheric grid and are needed to compute/exchange fluxes with
+!> other component models.  All fields in this variable type are
+!> allocated for the global grid (without halo regions).
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine atmos_timestep_diagnostics(Atmos)
   use mpi_f08
   implicit none
@@ -516,15 +525,19 @@ subroutine atmos_timestep_diagnostics(Atmos)
 
 !-----------------------------------------------------------------------
 end subroutine atmos_timestep_diagnostics
-! </SUBROUTINE>
 
-!#######################################################################
-! <SUBROUTINE NAME="atmos_model_init">
-!
-! <OVERVIEW>
-! Routine to initialize the atmospheric model
-! </OVERVIEW>
-
+!> Routine to initialize the atmospheric model.
+!>
+!> @param[inout] Atmos Derived-type variable that contains fields
+!> needed by the flux exchange module. These fields describe the
+!> atmospheric grid and are needed to compute/exchange fluxes with
+!> other component models.  All fields in this variable type are
+!> allocated for the global grid (without halo regions).
+!> @param[in] Time_init ???
+!> @param[in] Time ???
+!> @param[in] Time_step ???
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine atmos_model_init (Atmos, Time_init, Time, Time_step)
 
 #ifdef _OPENMP
@@ -855,13 +868,16 @@ subroutine atmos_model_init (Atmos, Time_init, Time, Time_step)
 
 !-----------------------------------------------------------------------
 end subroutine atmos_model_init
-! </SUBROUTINE>
 
-
-!#######################################################################
-! <SUBROUTINE NAME="update_atmos_model_dynamics"
-!
-! <OVERVIEW>
+!> Update atmospheric model dynamics.
+!>
+!> @param[in] Atmos Derived-type variable that contains fields
+!> needed by the flux exchange module. These fields describe the
+!> atmospheric grid and are needed to compute/exchange fluxes with
+!> other component models.  All fields in this variable type are
+!> allocated for the global grid (without halo regions).
+!>
+!> @author Jun Wang @date 01/2017  
 subroutine update_atmos_model_dynamics (Atmos)
 ! run the atmospheric dynamics to advect the properties
   type (atmos_data_type), intent(in) :: Atmos
