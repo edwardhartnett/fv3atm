@@ -8,6 +8,7 @@ option(ENABLE_FV3ATM_DOCS "Enable generation of doxygen-based documentation." OF
 
 # Determine whether or not to generate documentation.
 if(ENABLE_FV3ATM_DOCS)
+  message(STATUS "We will build the fv3atm doxygen documentation.")
   find_package(Doxygen REQUIRED)
   add_subdirectory(docs)
 endif()
