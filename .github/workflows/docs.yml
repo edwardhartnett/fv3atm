@@ -61,7 +61,7 @@ jobs:
         echo "spackrc=$?" >> ${GITHUB_ENV}
         spack clean --all
 
-  build_fv3atm:
+  build_docs:
     needs: build_spack
     runs-on: ubuntu-latest
 
