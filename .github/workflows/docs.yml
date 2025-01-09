@@ -106,7 +106,7 @@ jobs:
         path: ${{ github.workspace }}/spack-develop
         key: spack-${{ hashFiles('fv3atm/ci/spack.yaml') }}-gcc${{ matrix.gcc_ver }}-${{ matrix.mpi }}
 
-    - name: docs-build-fv3atm
+    - name: docs-build
       run: |
         . ${GITHUB_WORKSPACE}/spack-develop/share/spack/setup-env.sh
         spack env activate gcc${{ matrix.gcc_ver }}
