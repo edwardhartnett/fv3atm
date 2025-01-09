@@ -74,8 +74,8 @@ jobs:
 
     steps:
 
-    # Only do Doxygen and gcovr build for one job
-    - name: decide-doc-gcovr-build
+    # Only do gcovr build for one job
+    - name: decide-gcovr-build
       run: |
         if [[ "${{ matrix.cmake_opts }}" == "-D32BIT=ON" && "${{ matrix.gcc_ver }}" == 12 && "${{ matrix.mpi }}" == mpich ]]; then
           echo 'devbuild=ON' | tee -a ${GITHUB_ENV}
@@ -86,7 +86,6 @@ jobs:
 
     - name: install-utilities
       run: |
-        sudo apt-get install doxygen graphviz
         python3 -m pip install gcovr
 
     - name: install-cmake
@@ -121,7 +120,7 @@ jobs:
         export CC=mpicc
         export CXX=mpicxx
         export FC=mpif90
-        cmake ${GITHUB_WORKSPACE}/fv3atm -DBUILD_TESTING=ON ${{ matrix.cmake_opts }} -DENABLE_DOCS=ON ${{ env.gcov_cmake }}
+        cmake ${GITHUB_WORKSPACE}/fv3atm -DBUILD_TESTING=ON ${{ matrix.cmake_opts }} ${{ env.gcov_cmake }}
         make -j2
 
     - name: run-tests
@@ -143,14 +142,6 @@ jobs:
         path: |
               ${{ github.workspace }}/build/*.html 
               ${{ github.workspace }}/build/*.css
-
-    - name: upload-docs
-      uses: actions/upload-artifact@v4
-      if: ${{ env.devbuild == 'ON' }}
-      with:
-        name: docs-fv3atm
-        path: |
-          build/docs/html
 
     - name: debug-artifacts
       uses: actions/upload-artifact@v4
