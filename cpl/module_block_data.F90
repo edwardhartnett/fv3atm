@@ -410,18 +410,22 @@ contains
 
   end subroutine block_array_copy_3d_r8_to_3d_r8
 
-  !> copy: 3D slice to 3D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 3D slice from a source array to a destination array.
   !>
-  !> @author
+  !> This subroutine copies a 3D slice from the source array to the 
+  !> destination array, applying a scale factor and an offset to the 
+  !> values during the copy process.
+  !>
+  !> @param[inout] destin_ptr Pointer to the destination array.
+  !> @param[in] source_ptr Pointer to the source array.
+  !> @param[in] slice Integer specifying the slice to be copied.
+  !> @param[in] block Integer specifying the block to be copied.
+  !> @param[in] block_index Integer specifying the index of the block.
+  !> @param[in] scale_factor Real(8) scale factor to be applied to the values.
+  !> @param[in] offset Real(8) offset to be applied to the values.
+  !> @param[out] rc Integer return code indicating success or failure.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_3dslice_r8_to_3d_r8(destin_ptr, source_ptr, slice, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -465,18 +469,25 @@ contains
 
   end subroutine block_copy_3dslice_r8_to_3d_r8
 
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 3D slice from a source array to a destination pointer array.
   !>
-  !> @author
+  !> This subroutine copies a specified 3D slice from the source array to the 
+  !> destination pointer array. The slice is determined by the provided slice 
+  !> index and block information. The copied values can be scaled and offset 
+  !> by the provided scale factor and offset values.
+  !>
+  !> @param[out] destin_ptr   Pointer to the destination array where the slice 
+  !>                          will be copied.
+  !> @param[in]  source_arr   Source array from which the slice will be copied.
+  !> @param[in]  slice        Integer specifying the slice index to be copied.
+  !> @param[in]  block        Integer specifying the block index.
+  !> @param[in]  block_index  Integer specifying the block index within the slice.
+  !> @param[in]  scale_factor Real(8) value to scale the copied values.
+  !> @param[in]  offset       Real(8) value to offset the copied values.
+  !> @param[out] rc           Integer return code indicating the success or 
+  !>                          failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_array_copy_3dslice_r8_to_3d_r8(destin_ptr, source_arr, slice, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
