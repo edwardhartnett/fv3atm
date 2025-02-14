@@ -531,16 +531,16 @@ contains
 
   end subroutine block_array_copy_3dslice_r8_to_3d_r8
 
-  !> fill: 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Fills a 2D block of real*8 data with a specified fill value.
   !>
-  !> @author
+  !> @param[inout] destin_ptr  Pointer to the destination array.
+  !> @param[in]    fill_value  The value to fill the block with.
+  !> @param[in]    block       The block dimensions.
+  !> @param[in]    block_index The index of the block to fill.
+  !> @param[in]    offset      The offset to apply to the block index.
+  !> @param[out]   rc          Return code indicating success or failure.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_fill_2d_r8(destin_ptr, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -574,16 +574,21 @@ contains
 
   end subroutine block_fill_2d_r8
 
-  !> fill: 3D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Fills a 3D block of real*8 data with a specified fill value.
   !>
-  !> @author
+  !> This subroutine fills a 3D block of real*8 (double precision) data
+  !> pointed to by `destin_ptr` with the value `fill_value`. The block
+  !> is specified by `block` and `block_index`, and the filling starts
+  !> at the given `offset`. The result code is returned in `rc`.
+  !>
+  !> @param[inout] destin_ptr Pointer to the destination 3D array to be filled.
+  !> @param[in] fill_value The value to fill the block with.
+  !> @param[in] block The block dimensions to be filled.
+  !> @param[in] block_index The index of the block to be filled.
+  !> @param[in] offset The starting offset for filling the block.
+  !> @param[out] rc The result code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_fill_3d_r8(destin_ptr, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -619,17 +624,24 @@ contains
 
   end subroutine block_fill_3d_r8
 
-  !> copy/fill: 1D to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies or fills a 1D real*8 array to a 2D real*8 array.
   !>
-  !> @author
+  !> This subroutine takes a 1D array and either copies its contents to a
+  !> 2D array or fills the 2D array with a specified fill value. The
+  !> operation is determined by the provided block and block_index.
+  !>
+  !> @param[inout] destin_ptr Pointer to the destination 2D real*8 array.
+  !> @param[in] source_ptr Pointer to the source 1D real*8 array.
+  !> @param[in] fill_value The value used to fill the destination array if
+  !>                       the source array is not used.
+  !> @param[in] block The block size or dimension for the operation.
+  !> @param[in] block_index The index of the block to be copied or filled.
+  !> @param[in] offset The offset to be applied during the copy or fill
+  !>                   operation.
+  !> @param[out] rc Return code indicating the success or failure of the
+  !>                operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_or_fill_1d_r8_to_2d_r8(destin_ptr, source_ptr, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -654,18 +666,22 @@ contains
 
   end subroutine block_copy_or_fill_1d_r8_to_2d_r8
 
-  !> copy/fill: 1D slice to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies or fills a 1D slice of real*8 data to a 2D real*8 array.
   !>
-  !> @author
+  !> This subroutine either copies data from a 1D source array to a 2D
+  !> destination array or fills the destination array with a specified
+  !> fill value if the source array is not provided.
+  !>
+  !> @param[inout] destin_ptr Pointer to the destination 2D real*8 array.
+  !> @param[in] source_ptr Pointer to the source 1D real*8 array.
+  !> @param[in] slice Integer specifying the slice of the destination array to fill.
+  !> @param[in] fill_value Real*8 value used to fill the destination array if source_ptr is not provided.
+  !> @param[in] block Integer specifying the block size for the operation.
+  !> @param[in] block_index Integer specifying the index of the block to operate on.
+  !> @param[in] offset Integer specifying the offset within the block.
+  !> @param[out] rc Integer return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_or_fill_1dslice_r8_to_2d_r8(destin_ptr, source_ptr, slice, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -691,19 +707,23 @@ contains
 
   end subroutine block_copy_or_fill_1dslice_r8_to_2d_r8
 
-  !> copy/fill: 1D slice to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice1 ???
-  !> @param[in] slice2 ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies or fills a 1D slice of real*8 data to a 2D real*8 array.
   !>
-  !> @author
+  !> This subroutine either copies data from a 1D source array to a 2D 
+  !> destination array or fills the destination array with a specified 
+  !> fill value if the source data is not available.
+  !>
+  !> @param[inout] destin_ptr Pointer to the destination 2D real*8 array.
+  !> @param[in] source_ptr Pointer to the source 1D real*8 array.
+  !> @param[in] slice1 The first dimension of the slice to be copied or filled.
+  !> @param[in] slice2 The second dimension of the slice to be copied or filled.
+  !> @param[in] fill_value The value to fill the destination array if source data is not available.
+  !> @param[in] block The block of data to be processed.
+  !> @param[in] block_index The index of the block within the data.
+  !> @param[in] offset The offset within the block where the data starts.
+  !> @param[out] rc Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_or_fill_1dslice2_r8_to_2d_r8(destin_ptr, source_ptr, slice1, slice2, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -730,17 +750,26 @@ contains
 
   end subroutine block_copy_or_fill_1dslice2_r8_to_2d_r8
 
-  !> copy/fill: 2D to 3D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies or fills a 2D real*8 array into a 3D real*8 array.
   !>
-  !> @author
+  !> This subroutine takes a 2D array and either copies its contents or 
+  !> fills a 3D array with a specified fill value. The operation is 
+  !> controlled by the provided block and block_index parameters.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 3D array.
+  !> @param[in]  source_ptr Pointer to the source 2D array.
+  !> @param[in]  fill_value Value used to fill the destination array if 
+  !>                        the source array is not used.
+  !> @param[in]  block      Specifies the block of the destination array 
+  !>                        to be filled or copied into.
+  !> @param[in]  block_index Index within the block where the operation 
+  !>                         starts.
+  !> @param[in]  offset     Offset to be applied during the copy or fill 
+  !>                        operation.
+  !> @param[out] rc         Return code indicating the success or failure 
+  !>                        of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_or_fill_2d_r8_to_3d_r8(destin_ptr, source_ptr, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -765,65 +794,22 @@ contains
 
   end subroutine block_copy_or_fill_2d_r8_to_3d_r8
 
-  !> combine: 1D to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] fract1_ptr ???
-  !> @param[in] fract2_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 1D array of real(4) values to a 2D array of real(8) values.
   !>
-  !> @author
-  subroutine block_combine_frac_1d_r8_to_2d_r8(destin_ptr, fract1_ptr, fract2_ptr, block, block_index, offset, rc)
-
-    ! -- arguments
-    real(ESMF_KIND_R8),        pointer     :: destin_ptr(:,:)
-    real(kind=8),              pointer     :: fract1_ptr(:)
-    real(kind=8),              pointer     :: fract2_ptr(:)
-    type(block_control_type),  intent(in)  :: block
-    integer,                   intent(in)  :: block_index
-    integer,                   intent(in)  :: offset
-    integer, optional,         intent(out) :: rc
-
-    ! -- local variables
-    integer      :: localrc
-    integer      :: i, ib, ix, im, j, jb
-
-    ! -- begin
-    localrc = ESMF_RC_PTR_NOTALLOC
-    if (associated(destin_ptr) .and. &
-        associated(fract1_ptr) .and. associated(fract2_ptr)) then
-!$omp parallel do private(ix,im,ib,jb,i,j)
-      do ix = 1, block%blksz(block_index)
-        im = offset + ix - 1
-        ib = block%index(block_index)%ii(ix)
-        jb = block%index(block_index)%jj(ix)
-        i = ib - block%isc + 1
-        j = jb - block%jsc + 1
-        destin_ptr(i,j) = fract1_ptr(im) * (1._8 - fract2_ptr(im))
-      enddo
-      localrc = ESMF_SUCCESS
-    end if
-
-    if (present(rc)) rc = localrc
-
-  end subroutine block_combine_frac_1d_r8_to_2d_r8
-
-  ! Real*4 Routines
-
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> This subroutine performs a block copy from a 1D source array of 
+  !> single-precision real numbers to a 2D destination array of 
+  !> double-precision real numbers. The copy operation includes scaling 
+  !> and offset adjustments.
   !>
-  !> @author
+  !> @param[out] destin_ptr Pointer to the destination 2D array (real(8)).
+  !> @param[in]  source_ptr Pointer to the source 1D array (real(4)).
+  !> @param[in]  block      The size of the block to be copied.
+  !> @param[in]  block_index The starting index in the destination array.
+  !> @param[in]  scale_factor The factor by which to scale the source values.
+  !> @param[in]  offset      The offset to add to the scaled source values.
+  !> @param[out] rc          Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_1d_r4_to_2d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -861,18 +847,20 @@ contains
 
   end subroutine block_copy_1d_r4_to_2d_r8
 
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] special_value ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 1D array of single precision real values to a 2D array of 
+  !> double precision real values, applying a scale factor and handling special 
+  !> values.
   !>
-  !> @author
+  !> @param[out] destin_ptr Pointer to the destination 2D array of double precision real values.
+  !> @param[in] source_ptr Pointer to the source 1D array of single precision real values.
+  !> @param[in] block The block size for the copy operation.
+  !> @param[in] block_index The index of the block to be copied.
+  !> @param[in] scale_factor The factor by which to scale the source values.
+  !> @param[in] special_value The special value in the source array to be handled.
+  !> @param[in] offset The offset to be applied to the destination array.
+  !> @param[out] rc Return code indicating the success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_spval_1d_r4_to_2d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, special_value, offset, rc)
 
     ! -- arguments
@@ -912,18 +900,23 @@ contains
 
   end subroutine block_copy_spval_1d_r4_to_2d_r8
 
-  !> copy: 1D slice to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 1D slice of real(4) data to a 2D real(8) array.
   !>
-  !> @author
+  !> This subroutine performs the operation of copying a 1-dimensional 
+  !> slice of single precision real data to a 2-dimensional double 
+  !> precision real array. The operation includes scaling and offsetting 
+  !> the data as specified.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 2D real(8) array.
+  !> @param[in]  source_ptr Pointer to the source 1D real(4) array.
+  !> @param[in]  slice      Integer specifying the slice to be copied.
+  !> @param[in]  block      Integer specifying the block of data.
+  !> @param[in]  block_index Integer specifying the index within the block.
+  !> @param[in]  scale_factor Real(8) value used to scale the source data.
+  !> @param[in]  offset      Real(8) value used to offset the source data.
+  !> @param[out] rc          Integer return code indicating success or failure.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_1dslice_r4_to_2d_r8(destin_ptr, source_ptr, slice, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -965,19 +958,23 @@ contains
 
   end subroutine block_copy_1dslice_r4_to_2d_r8
 
-  !> copy: 1D slice to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice1 ???
-  !> @param[in] slice2 ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 1D slice of real(4) data to a 2D array of real(8) data.
   !>
-  !> @author
+  !> This subroutine performs a block copy from a 1D slice of single precision
+  !> floating-point data to a 2D array of double precision floating-point data.
+  !> The data is scaled and offset during the copy process.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 2D array (real(8)).
+  !> @param[in]  source_ptr Pointer to the source 1D slice (real(4)).
+  !> @param[in]  slice1     The first dimension of the slice to be copied.
+  !> @param[in]  slice2     The second dimension of the slice to be copied.
+  !> @param[in]  block      The block size for the copy operation.
+  !> @param[in]  block_index The index of the block to be copied.
+  !> @param[in]  scale_factor The factor by which to scale the source data.
+  !> @param[in]  offset     The offset to be added to the scaled source data.
+  !> @param[out] rc         Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_1dslice2_r4_to_2d_r8(destin_ptr, source_ptr, slice1, slice2, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -1020,17 +1017,22 @@ contains
 
   end subroutine block_copy_1dslice2_r4_to_2d_r8
 
-  !> copy: 2D to 3D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 2D real (kind=4) block to a 3D real (kind=8) block.
   !>
-  !> @author
+  !> This subroutine performs a copy operation from a 2D source array of 
+  !> single precision real numbers to a 3D destination array of double 
+  !> precision real numbers. The copy operation includes scaling and 
+  !> offset adjustments.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 3D array (real, kind=8).
+  !> @param[in]  source_ptr Pointer to the source 2D array (real, kind=4).
+  !> @param[in]  block      Specifies the block dimensions and indices.
+  !> @param[in]  block_index Index of the block to be copied.
+  !> @param[in]  scale_factor Scaling factor to be applied during the copy.
+  !> @param[in]  offset      Offset to be applied during the copy.
+  !> @param[out] rc          Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_2d_r4_to_3d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -1070,17 +1072,22 @@ contains
 
   end subroutine block_copy_2d_r4_to_3d_r8
 
-  !> copy: 2D to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 2D block of real*4 data to a 2D block of real*8 data.
   !>
-  !> @author
+  !> This subroutine performs a copy operation from a source 2D array of 
+  !> single precision real numbers (real*4) to a destination 2D array of 
+  !> double precision real numbers (real*8). The copy operation includes 
+  !> scaling and offsetting the source data.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 2D array (real*8).
+  !> @param[in]  source_ptr Pointer to the source 2D array (real*4).
+  !> @param[in]  block      The block size to be copied.
+  !> @param[in]  block_index The index of the block to be copied.
+  !> @param[in]  scale_factor The factor by which to scale the source data.
+  !> @param[in]  offset     The offset to be added to the scaled source data.
+  !> @param[out] rc         Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_2d_r4_to_2d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -1118,17 +1125,21 @@ contains
 
   end subroutine block_copy_2d_r4_to_2d_r8
 
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_arr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 2D array of real(4) to a 2D array of real(8) with scaling and offset.
   !>
-  !> @author
+  !> This subroutine performs a copy operation from a 2D array of single precision
+  !> floating-point numbers (real(4)) to a 2D array of double precision floating-point
+  !> numbers (real(8)). The copy operation includes scaling and offset adjustments.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 2D array of real(8).
+  !> @param[in]  source_arr 2D array of real(4) to be copied.
+  !> @param[in]  block      Block size for the copy operation.
+  !> @param[in]  block_index Index of the block to be copied.
+  !> @param[in]  scale_factor Scaling factor to be applied to the source array elements.
+  !> @param[in]  offset     Offset to be added to the scaled source array elements.
+  !> @param[out] rc         Return code indicating the success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_array_copy_2d_r4_to_2d_r8(destin_ptr, source_arr, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -1166,17 +1177,22 @@ contains
 
   end subroutine block_array_copy_2d_r4_to_2d_r8
 
-  !> copy: 3D to 3D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 3D block of real*4 data to a 3D block of real*8 data.
   !>
-  !> @author
+  !> This subroutine performs a copy operation from a source 3D array of 
+  !> single-precision real numbers (real*4) to a destination 3D array of 
+  !> double-precision real numbers (real*8). The copy operation can include 
+  !> scaling and offset adjustments.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 3D array (real*8).
+  !> @param[in]  source_ptr Pointer to the source 3D array (real*4).
+  !> @param[in]  block      The block size to be copied.
+  !> @param[in]  block_index The index of the block to be copied.
+  !> @param[in]  scale_factor The factor by which to scale the source data.
+  !> @param[in]  offset     The offset to be added to the scaled source data.
+  !> @param[out] rc         Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_3d_r4_to_3d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -1216,17 +1232,22 @@ contains
 
   end subroutine block_copy_3d_r4_to_3d_r8
 
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_arr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 3D real(4) array to a 3D real(8) array with scaling and offset.
   !>
-  !> @author
+  !> This subroutine performs a copy operation from a source 3D array of 
+  !> single precision real numbers (real(4)) to a destination 3D array of 
+  !> double precision real numbers (real(8)). The copy operation includes 
+  !> scaling and offset adjustments.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 3D array (real(8)).
+  !> @param[in]  source_arr Source 3D array (real(4)).
+  !> @param[in]  block      Block size or dimensions.
+  !> @param[in]  block_index Index of the block to be copied.
+  !> @param[in]  scale_factor Scaling factor to be applied during the copy.
+  !> @param[in]  offset     Offset to be added during the copy.
+  !> @param[out] rc         Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_array_copy_3d_r4_to_3d_r8(destin_ptr, source_arr, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -1266,18 +1287,23 @@ contains
 
   end subroutine block_array_copy_3d_r4_to_3d_r8
 
-  !> copy: 3D slice to 3D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 3D slice of real(4) data to a 3D real(8) array.
   !>
-  !> @author
+  !> This subroutine copies a 3D slice from a source array of real(4) 
+  !> precision to a destination array of real(8) precision. The slice 
+  !> is specified by the slice index and block information. The data 
+  !> can be scaled and offset during the copy process.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination array (real(8)).
+  !> @param[in]  source_ptr Pointer to the source array (real(4)).
+  !> @param[in]  slice      Index of the slice to be copied.
+  !> @param[in]  block      Block information for the data.
+  !> @param[in]  block_index Index of the block within the data.
+  !> @param[in]  scale_factor Scaling factor to be applied to the data.
+  !> @param[in]  offset     Offset to be applied to the data.
+  !> @param[out] rc         Return code indicating success or failure.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_3dslice_r4_to_3d_r8(destin_ptr, source_ptr, slice, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -1321,18 +1347,22 @@ contains
 
   end subroutine block_copy_3dslice_r4_to_3d_r8
 
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_arr ???
-  !> @param[in] slice ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 3D slice of a real(4) array to a real(8) 3D array.
   !>
-  !> @author
+  !> This subroutine copies a specified 3D slice from a source array of 
+  !> real(4) type to a destination array of real(8) type. The copy operation 
+  !> can include scaling and offset adjustments.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination array (real(8)).
+  !> @param[in]  source_arr Source array (real(4)).
+  !> @param[in]  slice      Index of the slice to be copied.
+  !> @param[in]  block      Block size for the copy operation.
+  !> @param[in]  block_index Index of the block to be copied.
+  !> @param[in]  scale_factor Scaling factor to be applied during the copy.
+  !> @param[in]  offset     Offset to be applied during the copy.
+  !> @param[out] rc         Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_array_copy_3dslice_r4_to_3d_r8(destin_ptr, source_arr, slice, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -1376,17 +1406,20 @@ contains
 
   end subroutine block_array_copy_3dslice_r4_to_3d_r8
 
-  !> copy/fill: 1D to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies or fills a 1D array of real(4) values to a 2D array of real(8) values.
   !>
-  !> @author
+  !> This subroutine takes a 1D array of real(4) values and either copies it or fills it into a 2D array of real(8) values.
+  !> If the source array is smaller than the destination block, the remaining elements are filled with a specified fill value.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 2D array of real(8) values.
+  !> @param[in]  source_ptr Pointer to the source 1D array of real(4) values.
+  !> @param[in]  fill_value The value used to fill the remaining elements if the source array is smaller than the destination block.
+  !> @param[in]  block      The size of the block to be copied or filled.
+  !> @param[in]  block_index The index of the block in the destination array.
+  !> @param[in]  offset     The offset in the destination array where the block starts.
+  !> @param[out] rc         Return code indicating the success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_or_fill_1d_r4_to_2d_r8(destin_ptr, source_ptr, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -1411,18 +1444,21 @@ contains
 
   end subroutine block_copy_or_fill_1d_r4_to_2d_r8
 
-  !> copy/fill: 1D slice to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies or fills a 1D slice of real(4) data to a 2D real(8) array.
   !>
-  !> @author
+  !> This subroutine either copies data from a 1D slice of real(4) values
+  !> to a 2D real(8) array or fills the 2D array with a specified fill value.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 2D real(8) array.
+  !> @param[in]  source_ptr Pointer to the source 1D real(4) array.
+  !> @param[in]  slice      Integer specifying the slice of the source array to copy.
+  !> @param[in]  fill_value Real(8) value used to fill the destination array if copying is not performed.
+  !> @param[in]  block      Integer specifying the block size.
+  !> @param[in]  block_index Integer specifying the index of the block.
+  !> @param[in]  offset     Integer specifying the offset for the destination array.
+  !> @param[out] rc         Integer return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_or_fill_1dslice_r4_to_2d_r8(destin_ptr, source_ptr, slice, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -1448,19 +1484,23 @@ contains
 
   end subroutine block_copy_or_fill_1dslice_r4_to_2d_r8
 
-  !> copy/fill: 1D slice to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice1 ???
-  !> @param[in] slice2 ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies or fills a 1D slice of real(4) data to a 2D array of real(8) data.
   !>
-  !> @author
+  !> This subroutine takes a 1D slice of real(4) data and either copies it
+  !> or fills it into a 2D array of real(8) data. The operation is controlled
+  !> by the provided parameters.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 2D array of real(8) data.
+  !> @param[in]  source_ptr Pointer to the source 1D slice of real(4) data.
+  !> @param[in]  slice1     The first dimension of the slice to be copied or filled.
+  !> @param[in]  slice2     The second dimension of the slice to be copied or filled.
+  !> @param[in]  fill_value The value to fill in the destination array if the source is not provided.
+  !> @param[in]  block      The block of data to be processed.
+  !> @param[in]  block_index The index of the block within the data.
+  !> @param[in]  offset     The offset to be applied during the copy or fill operation.
+  !> @param[out] rc         Return code indicating the success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_or_fill_1dslice2_r4_to_2d_r8(destin_ptr, source_ptr, slice1, slice2, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -1487,17 +1527,21 @@ contains
 
   end subroutine block_copy_or_fill_1dslice2_r4_to_2d_r8
 
-  !> copy/fill: 2D to 3D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] fill_value ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies or fills a 2D real(4) array into a 3D real(8) array.
   !>
-  !> @author
+  !> This subroutine takes a 2D array of real(4) values and either copies it
+  !> into or fills a 3D array of real(8) values. The operation is controlled
+  !> by the provided block and block_index parameters.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 3D real(8) array.
+  !> @param[in]  source_ptr Pointer to the source 2D real(4) array.
+  !> @param[in]  fill_value Value used to fill the destination array if needed.
+  !> @param[in]  block      Specifies the block of data to be copied or filled.
+  !> @param[in]  block_index Index of the block in the destination array.
+  !> @param[in]  offset     Offset to be applied during the copy or fill operation.
+  !> @param[out] rc         Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_or_fill_2d_r4_to_3d_r8(destin_ptr, source_ptr, fill_value, block, block_index, offset, rc)
 
     ! -- arguments
@@ -1522,17 +1566,17 @@ contains
 
   end subroutine block_copy_or_fill_2d_r4_to_3d_r8
 
-  !> combine: 1D to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] fract1_ptr ???
-  !> @param[in] fract2_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Combines two 1D real(4) fractional arrays into a 2D real(8) array.
   !>
-  !> @author
+  !> @param destin_ptr Pointer to the destination 2D real(8) array.
+  !> @param fract1_ptr Pointer to the first 1D real(4) fractional array.
+  !> @param fract2_ptr Pointer to the second 1D real(4) fractional array.
+  !> @param block Integer specifying the block size.
+  !> @param block_index Integer specifying the block index.
+  !> @param offset Integer specifying the offset.
+  !> @param rc Integer return code.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_combine_frac_1d_r4_to_2d_r8(destin_ptr, fract1_ptr, fract2_ptr, block, block_index, offset, rc)
 
     ! -- arguments
