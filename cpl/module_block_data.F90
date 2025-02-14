@@ -1,11 +1,11 @@
 !> @file
-!> @brief ???
-!> @author ???
+!> @brief Copies block data containing real*4, real*8, or integer into
+!> ESMF_KIND_R8 arrays, with an optional scaling factor. Can also fill
+!> ESMF_KIND_R8 arrays with a constant value.
+!>
+!> @author Raffaele Montuoro @date 7/1/21
 module module_block_data
 
-  ! Copies block data containing real*4, real*8, or integer into
-  ! ESMF_KIND_R8 arrays, with an optional scaling factor. Can also
-  ! fill ESMF_KIND_R8 arrays with a constant value.
 
   use ESMF,              only: ESMF_KIND_R8, ESMF_SUCCESS, &
                                ESMF_RC_PTR_NOTALLOC, ESMF_RC_VAL_OUTOFRANGE
@@ -74,114 +74,24 @@ module module_block_data
 
 contains
 
-  !> copy: 1D to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 1D array of real*8 values to a 2D array of real*8 values.
   !>
-  !> @author
-  subroutine block_copy_1d_i4_to_2d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, offset, rc)
-
-    ! -- arguments
-    real(ESMF_KIND_R8),        pointer     :: destin_ptr(:,:)
-    integer,                   pointer     :: source_ptr(:)
-    type(block_control_type),  intent(in)  :: block
-    integer,                   intent(in)  :: block_index
-    real(kind=8),    optional, intent(in)  :: scale_factor
-    integer,                   intent(in)  :: offset
-    integer,         optional, intent(out) :: rc
-
-    ! -- local variables
-    integer      :: localrc
-    integer      :: i, ib, ix, im, j, jb
-    real(kind=8) :: factor
-
-    ! -- begin
-    localrc = ESMF_RC_PTR_NOTALLOC
-    if (associated(destin_ptr) .and. associated(source_ptr)) then
-      factor = 1._8
-      if (present(scale_factor)) factor = scale_factor
-!$omp parallel do private(ix,im,ib,jb,i,j)
-      do ix = 1, block%blksz(block_index)
-        im = offset + ix - 1
-        ib = block%index(block_index)%ii(ix)
-        jb = block%index(block_index)%jj(ix)
-        i = ib - block%isc + 1
-        j = jb - block%jsc + 1
-        destin_ptr(i,j) = factor * real(source_ptr(im), kind=8)
-      enddo
-      localrc = ESMF_SUCCESS
-    end if
-
-    if (present(rc)) rc = localrc
-
-  end subroutine block_copy_1d_i4_to_2d_r8
-
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> This subroutine copies values from a 1D source array to a 2D destination
+  !> array, applying a scale factor and handling special values. The copy
+  !> operation is performed for a specific block and block index.
   !>
-  !> @author
-  subroutine block_copy_1d_r8_to_2d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, offset, rc)
-
-    ! -- arguments
-    real(ESMF_KIND_R8),        pointer     :: destin_ptr(:,:)
-    real(kind=8),              pointer     :: source_ptr(:)
-    type(block_control_type),  intent(in)  :: block
-    integer,                   intent(in)  :: block_index
-    real(kind=8),    optional, intent(in)  :: scale_factor
-    integer,                   intent(in)  :: offset
-    integer,         optional, intent(out) :: rc
-
-    ! -- local variables
-    integer      :: localrc
-    integer      :: i, ib, ix, im, j, jb
-    real(kind=8) :: factor
-
-    ! -- begin
-    localrc = ESMF_RC_PTR_NOTALLOC
-    if (associated(destin_ptr) .and. associated(source_ptr)) then
-      factor = 1._8
-      if (present(scale_factor)) factor = scale_factor
-!$omp parallel do private(ix,im,ib,jb,i,j)
-      do ix = 1, block%blksz(block_index)
-        im = offset + ix - 1
-        ib = block%index(block_index)%ii(ix)
-        jb = block%index(block_index)%jj(ix)
-        i = ib - block%isc + 1
-        j = jb - block%jsc + 1
-        destin_ptr(i,j) = factor * source_ptr(im)
-      enddo
-      localrc = ESMF_SUCCESS
-    end if
-
-    if (present(rc)) rc = localrc
-
-  end subroutine block_copy_1d_r8_to_2d_r8
-
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] special_value ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> @param[out] destin_ptr Pointer to the destination 2D array.
+  !> @param[in]  source_ptr Pointer to the source 1D array.
+  !> @param[in]  block      The block structure containing information about
+  !>                        the block dimensions.
+  !> @param[in]  block_index The index of the block to copy.
+  !> @param[in]  scale_factor The factor by which to scale the source values.
+  !> @param[in]  special_value The special value to handle in the source array.
+  !> @param[in]  offset     The offset to apply to the destination indices.
+  !> @param[out] rc         Return code indicating success or failure of the
+  !>                        operation.
   !>
-  !> @author
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_spval_1d_r8_to_2d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, special_value, offset, rc)
 
     ! -- arguments
@@ -221,18 +131,23 @@ contains
 
   end subroutine block_copy_spval_1d_r8_to_2d_r8
 
-  !> copy: 1D slice to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 1D slice of real*8 data to a 2D real*8 array.
   !>
-  !> @author
+  !> This subroutine copies a 1D slice of real*8 data from the source
+  !> array to a 2D real*8 destination array. The slice is specified by
+  !> the block and block_index parameters. The data can be scaled and
+  !> offset during the copy process.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 2D real*8 array.
+  !> @param[in]  source_ptr Pointer to the source 1D real*8 array.
+  !> @param[in]  slice      Integer specifying the slice to be copied.
+  !> @param[in]  block      Integer specifying the block to be copied.
+  !> @param[in]  block_index Integer specifying the index within the block.
+  !> @param[in]  scale_factor Real*8 value to scale the data during the copy.
+  !> @param[in]  offset      Real*8 value to offset the data during the copy.
+  !> @param[out] rc          Integer return code (0 for success, non-zero for error).
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_1dslice_r8_to_2d_r8(destin_ptr, source_ptr, slice, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -274,19 +189,23 @@ contains
 
   end subroutine block_copy_1dslice_r8_to_2d_r8
 
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] slice1 ???
-  !> @param[in] slice2 ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 1D slice of real*8 data to a 2D real*8 array.
   !>
-  !> @author
+  !> This subroutine takes a 1D slice of real*8 data from the source array
+  !> and copies it into a 2D real*8 destination array. The data can be
+  !> scaled and offset during the copy process.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 2D real*8 array.
+  !> @param[in]  source_ptr Pointer to the source 1D real*8 array.
+  !> @param[in]  slice1     The first dimension index of the slice.
+  !> @param[in]  slice2     The second dimension index of the slice.
+  !> @param[in]  block      The block size for the copy operation.
+  !> @param[in]  block_index The index of the block to be copied.
+  !> @param[in]  scale_factor The factor by which to scale the source data.
+  !> @param[in]  offset     The offset to be added to the scaled data.
+  !> @param[out] rc         Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_1dslice2_r8_to_2d_r8(destin_ptr, source_ptr, slice1, slice2, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -329,17 +248,21 @@ contains
 
   end subroutine block_copy_1dslice2_r8_to_2d_r8
 
-  !> copy: 2D to 3D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 2D real*8 block of data to a 3D real*8 block of data.
   !>
-  !> @author
+  !> This subroutine copies data from a 2D source array to a 3D destination
+  !> array, applying a scale factor and an offset to each element during
+  !> the copy process.
+  !>
+  !> @param[inout] destin_ptr Pointer to the destination 3D array.
+  !> @param[in] source_ptr Pointer to the source 2D array.
+  !> @param[in] block The block of data to be copied.
+  !> @param[in] block_index The index of the block in the destination array.
+  !> @param[in] scale_factor The factor by which to scale the source data.
+  !> @param[in] offset The offset to be added to the scaled source data.
+  !> @param[out] rc Return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_2d_r8_to_3d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -379,113 +302,22 @@ contains
 
   end subroutine block_copy_2d_r8_to_3d_r8
 
-  !> copy: 2D to 2D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 3D block of real*8 data from source to destination.
   !>
-  !> @author
-  subroutine block_copy_2d_r8_to_2d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, offset, rc)
-
-    ! -- arguments
-    real(ESMF_KIND_R8),        pointer     :: destin_ptr(:,:)
-    real(kind=8),              pointer     :: source_ptr(:,:)
-    type (block_control_type), intent(in)  :: block
-    integer,                   intent(in)  :: block_index
-    real(kind=8),    optional, intent(in)  :: scale_factor
-    integer,                   intent(in)  :: offset
-    integer,         optional, intent(out) :: rc
-
-    ! -- local variables
-    integer      :: localrc
-    integer      :: i, ib, ix, im, j, jb
-    real(kind=8) :: factor
-
-    ! -- begin
-    localrc = ESMF_RC_PTR_NOTALLOC
-    if (associated(destin_ptr) .and. associated(source_ptr)) then
-      factor = 1._8
-      if (present(scale_factor)) factor = scale_factor
-!$omp parallel do private(ix,im,ib,jb,i,j)
-      do ix = 1, block%blksz(block_index)
-        im = offset + ix - 1
-        ib = block%index(block_index)%ii(ix)
-        jb = block%index(block_index)%jj(ix)
-        i = ib - block%isc + 1
-        j = jb - block%jsc + 1
-        destin_ptr(i,j) = factor * source_ptr(ib,jb)
-      enddo
-      localrc = ESMF_SUCCESS
-    end if
-
-    if (present(rc)) rc = localrc
-
-  end subroutine block_copy_2d_r8_to_2d_r8
-
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> This subroutine copies a 3D block of real*8 (double precision) data
+  !> from the source array to the destination array. The block to be copied
+  !> is specified by the block and block_index parameters. The data can be
+  !> scaled and offset during the copy operation.
   !>
-  !> @author
-  subroutine block_array_copy_2d_r8_to_2d_r8(destin_ptr, source_arr, block, block_index, scale_factor, offset, rc)
-
-    ! -- arguments
-    real(ESMF_KIND_R8),        pointer     :: destin_ptr(:,:)
-    real(kind=8),              intent(in)  :: source_arr(:,:)
-    type (block_control_type), intent(in)  :: block
-    integer,                   intent(in)  :: block_index
-    real(kind=8),  optional,   intent(in)  :: scale_factor
-    integer,                   intent(in)  :: offset
-    integer,       optional,   intent(out) :: rc
-
-    ! -- local variables
-    integer      :: localrc
-    integer      :: i, ib, ix, im, j, jb
-    real(kind=8) :: factor
-
-    ! -- begin
-    localrc = ESMF_RC_PTR_NOTALLOC
-    if (associated(destin_ptr)) then
-      factor = 1._8
-      if (present(scale_factor)) factor = scale_factor
-!$omp parallel do private(ix,im,ib,jb,i,j)
-      do ix = 1, block%blksz(block_index)
-        im = offset + ix - 1
-        ib = block%index(block_index)%ii(ix)
-        jb = block%index(block_index)%jj(ix)
-        i = ib - block%isc + 1
-        j = jb - block%jsc + 1
-        destin_ptr(i,j) = factor * source_arr(i,j)
-      enddo
-      localrc = ESMF_SUCCESS
-    end if
-
-    if (present(rc)) rc = localrc
-
-  end subroutine block_array_copy_2d_r8_to_2d_r8
-
-  !> copy: 3D to 3D ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> @param[out] destin_ptr Pointer to the destination array.
+  !> @param[in] source_ptr Pointer to the source array.
+  !> @param[in] block Specifies the block dimensions to be copied.
+  !> @param[in] block_index Specifies the starting index of the block in the source array.
+  !> @param[in] scale_factor Scaling factor to be applied to the source data.
+  !> @param[in] offset Offset to be added to the scaled source data.
+  !> @param[out] rc Return code indicating success or failure of the operation.
   !>
-  !> @author
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_copy_3d_r8_to_3d_r8(destin_ptr, source_ptr, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
@@ -525,17 +357,20 @@ contains
 
   end subroutine block_copy_3d_r8_to_3d_r8
 
-  !> ???
-  !> 
-  !> @param[in] destin_ptr ???
-  !> @param[in] source_ptr ???
-  !> @param[in] block ???
-  !> @param[in] block_index ???
-  !> @param[in] scale_factor ???
-  !> @param[in] offset ???
-  !> @param[out] rc ???
+  !> Copies a 3D real*8 array from source to destination with scaling and offset.
   !>
-  !> @author
+  !> This subroutine copies a 3D array of real*8 (double precision) values from the source array
+  !> to the destination pointer, applying a scaling factor and an offset to each element.
+  !>
+  !> @param[out] destin_ptr Pointer to the destination 3D array of real*8 values.
+  !> @param[in]  source_arr 3D array of real*8 values to be copied.
+  !> @param[in]  block      Integer specifying the block size or index.
+  !> @param[in]  block_index Integer specifying the index within the block.
+  !> @param[in]  scale_factor Real*8 value to scale each element of the source array.
+  !> @param[in]  offset      Real*8 value to add to each scaled element of the source array.
+  !> @param[out] rc          Integer return code indicating success or failure of the operation.
+  !>
+  !> @author Raffaele Montuoro @date 7/1/21
   subroutine block_array_copy_3d_r8_to_3d_r8(destin_ptr, source_arr, block, block_index, scale_factor, offset, rc)
 
     ! -- arguments
